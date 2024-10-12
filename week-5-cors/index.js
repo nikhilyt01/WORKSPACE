@@ -1,7 +1,7 @@
 // write html that hits the backend server  using fetch api
 //npm install -g serve , then npx serve
 
-const express=require("express")
+const express=require( "express")
 const app=express();
 const cors=require("cors");
 
