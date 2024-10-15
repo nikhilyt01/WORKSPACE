@@ -1,0 +1,14 @@
+//try catch for error handling
+
+
+try{
+    let a;
+    console.log(a.length);   //// this will throw error so we wrap in try catch
+    console.log("inside try");
+
+}catch(e) {
+    console.log("inside catch")
+
+}
+//try catch syntaxx
+console.log("try catch done")
