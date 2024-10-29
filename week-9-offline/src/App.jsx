@@ -1,38 +1,29 @@
 import  {useState,useEffect} from 'react';
 import { PostComponent} from "./post" ;
-function App() {
-  const [showtimer,setShowtimer]=useState(true);
+const App=() => {
+  return <div style={{display:"flex",backgroundColor:"grey"}}>
 
-  useEffect(function(){
-    setInterval(function(){
-      setShowtimer(prevval =>!prevval)
+    <Card >
+    <div>
+      what do u want to add <br/>
+      <input type={"text"}  />
+    </div>
+    </Card>
+    
+    <Card>
+      hi there
+    </Card>
 
-    },5000)
+  </div>
+  
+}
+function Card({children}){
+  return <div style={{backgroundColor:"white",borderRadius:10,padding:10,margin:10}}>
+    {children}
+  </div>
 
-  },[])
-
-return <div>
-  {showtimer && <Timer/>}
-</div>
 }
 
-const Timer= function(){
-   const [seconds,setSeconds]=useState(0);
-
-   useEffect(function(){
-    let clock=setInterval(() => {
-      console.log("from inside the clock")
-      setSeconds(currvalue => currvalue + 1)
-     }, 1000);
-
-     return function(){
-      clearInterval(clock)
-     }
-
-
-   },[])
-   return <div> {seconds} seconds elapsed</div>
-}
 
 
 
