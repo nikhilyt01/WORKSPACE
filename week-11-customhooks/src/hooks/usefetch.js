@@ -17,3 +17,31 @@ export function  usepostTitle(){
         
     
 }
+export function useFetch(url,retrytime){
+    const [finalData,setFinalData]=useState({});
+    const [loading,setLoading]=useState(true);
+
+   async function getdetails(){
+        setLoading(true);
+        const response= await fetch(url);
+        const json=await response.json();
+        setFinalData(json)
+        setLoading(false);
+    }
+ 
+
+    useEffect(() =>{
+         getdetails();
+    },[url])
+    useEffect(()=>{
+        setInterval(getdetails,retrytime*1000)
+    },[])
+
+    
+
+
+    return {
+        finalData,
+        loading
+    }
+}
