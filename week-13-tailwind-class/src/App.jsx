@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { Button } from './components/button'
 import { Input } from './components/inputs'
+import { Otpcomponent } from './components/otp'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -12,8 +13,8 @@ function App() {
     <div className="h-screen bg-blue-700">
       <br/>
       <br/>
-     <Input type={"text"} placeholder={"username"}></Input>
-     <Button disabled={false} >Sign Up </Button>
+     
+     <Otpcomponent/>
      
      
      
