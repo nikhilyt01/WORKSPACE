@@ -1,0 +1,29 @@
+package-lock.json
+tsconfig.json
+dist
+# Node.js modules
+node_modules/
+
+# TypeScript build artifacts
+dist/
+build/
+*.js
+*.js.map
+*.d.ts
+
+# Logs
+logs/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+*.code-workspace
+
+# Environment variables
+.env
+.env.local
+

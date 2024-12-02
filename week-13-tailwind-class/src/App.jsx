@@ -15,6 +15,9 @@ function App() {
       <br/>
      
      <Otpcomponent/>
+     <Button disabled={true}>
+        Signup
+     </Button>
      
      
      
