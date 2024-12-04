@@ -1,20 +1,12 @@
-
-interface User { name:string;
+ interface user{
+    firstname:string;
+    lastname:string;
     age:number;
-    islegal():boolean;
-}
-
-class Manager implements User {
-    name:string;
-    age:number;
-    constructor (name:string,age:number){
-        this.name=name;
-        this.age=age;
-    }
-    islegal(){
-        return this.age >18
-    }
-
-}
-const m=new Manager("harkiart",21);
-console.log(m.name)
+ }
+ function filteruser(users:user[]){
+    return users.filter((user)=> user.age>18)
+ }
+ const filterdusers=filteruser([{firsstname:"nikhil",lastname:"singh",age:19},
+    {firstname:"dfhdh",lastname:"fdbdaf",age:16}
+ ])
+ console.log(filterdusers)
