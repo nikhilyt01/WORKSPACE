@@ -3,7 +3,7 @@ import mongoose from "mongoose" ;
 import jwt from "jsonwebtoken"
 import { usermodel } from "./db";
 import { contentmodel } from "./db";
-import { JWT_SCERET } from "./config";
+import { JWT_SECRET } from "./config";
 import { userMiddleware } from "./middleware";
 
 
@@ -41,7 +41,7 @@ app.post("/api/v1/signin",async (req,res) => {
     if(existinguser){
         const token=jwt.sign({
             id:existinguser._id
-        },JWT_SCERET)
+        },JWT_SECRET)
 
         res.json({
             token
