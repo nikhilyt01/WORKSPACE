@@ -7,6 +7,7 @@ import { JWT_SCERET } from "./config";
 import { userMiddleware } from "./middleware";
 
 
+
 const app=express()
 app.use(express.json());
 

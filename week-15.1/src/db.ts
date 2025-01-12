@@ -1,6 +1,15 @@
 import mongoose,{model,Schema} from "mongoose" ;
 import { isJSDocThisTag } from "typescript";
-mongoose.connect("mongodb+srv://nikhil0808yt:E9bliQgzUPiW0rzX@cluster0.x0cfi.mongodb.net/brainly")
+import dotenv from 'dotenv';
+dotenv.config();
+const Mongourl=process.env.Mongo_url
+
+if(!Mongourl){
+    throw new Error("mongo_url is not defined in .env file");
+}
+mongoose.connect(Mongourl)
+    .then(()=>console.log("connected to string"))
+    .catch((error)=>console.log("mongo connecetion error",error));
 
 const UserSchema=new Schema ({
     username:{type:String,unique:true},
