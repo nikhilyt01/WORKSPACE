@@ -6,7 +6,13 @@ import { contentmodel } from "./db";
 import { JWT_SECRET } from "./config";
 import { userMiddleware } from "./middleware";
 
-
+declare global {
+    namespace Express {
+        interface Request {
+            userId?:string;
+        }
+    }
+}
 
 const app=express()
 app.use(express.json());
@@ -54,10 +60,6 @@ app.post("/api/v1/signin",async (req,res) => {
 
 })
 
-app.post("/api/v1/brain/share",(req,res) => {
-
-})
-
 app.post("/api/v1/content",userMiddleware,async (req,res) => {
     const link=req.body.link;
     const type=req.body.type;
@@ -83,6 +85,11 @@ app.get("/api/v1/content",userMiddleware,async (req,res) => {
 
 
 })
+
+app.post("/api/v1/brain/share",(req,res) => {
+
+})
+
 app.get("/api/v1/brain/:sharelink",(req,res)=>{
 
 })
