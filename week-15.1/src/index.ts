@@ -5,6 +5,10 @@ import { usermodel } from "./db";
 import { contentmodel } from "./db";
 import { JWT_SECRET } from "./config";
 import { userMiddleware } from "./middleware";
+import { linkmodel } from "./db";
+import {random} from "./utils"
+import { userInfo } from "os";
+
 
 declare global {
     namespace Express {
@@ -66,7 +70,6 @@ app.post("/api/v1/content",userMiddleware,async (req,res) => {
     await contentmodel.create({
         link,
         type,
-        //@ts-ignore
         userId:req.userId,
         tags:[]
     })
@@ -76,7 +79,6 @@ app.post("/api/v1/content",userMiddleware,async (req,res) => {
 })
 
 app.get("/api/v1/content",userMiddleware,async (req,res) => {
-    //@ts-ignore
     const userId=req.userId;
     const content= await contentmodel.find({
         userId:userId
@@ -85,12 +87,65 @@ app.get("/api/v1/content",userMiddleware,async (req,res) => {
 
 
 })
+app.delete("/api/v1/content",userMiddleware,async (req,res) => {
+     await contentmodel.deleteMany({
+        userId:req.userId
+     })
+     res.json({ msg:"contents deleted"})
+ 
+})
 
-app.post("/api/v1/brain/share",(req,res) => {
+app.post("/api/v1/brain/share",userMiddleware,async(req,res) => {
+    const Share= req.body.share; // true or false
+    if(Share){
+      
+      const existinguser= await linkmodel.findOne({
+        userId:req.userId
+      })
+      if(existinguser){
+        res.json({
+            hash:existinguser.hash
+        }) 
+        
+        return ;
+      }
+      const hash= random(10);
+      await linkmodel.create({
+        userId:req.userId,
+        hash:hash
+      })
+      res.json({ hash})
+    }
+   
 
 })
 
-app.get("/api/v1/brain/:sharelink",(req,res)=>{
+app.get("/api/v1/brain/:sharelink",userMiddleware, async (req,res)=>{
+    const hash =req.params.sharelink;
+    const link= await linkmodel.findOne({
+        hash
+    })
+    if(!link){
+        res.json({msg:"incorrect input"})
+        return;
+    }
+    const content = await contentmodel.find({
+        userId:link.userId
+    })
+    const user= await usermodel.findOne({
+        _id:link.userId
+    })
+    if(!user) {
+        res.status(411).json({
+            msg:"user not found"
+        })
+        return ;
+    }
+    res.json({
+       username:user.username,
+       content:content
+ })
+
 
 })
 

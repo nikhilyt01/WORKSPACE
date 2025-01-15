@@ -10,7 +10,6 @@ export const userMiddleware= (req:Request,res:Response,next:NextFunction) =>{
     const header=req.headers["authorization"]
     const decoded= jwt.verify(header as string ,JWT_SECRET)
     if(decoded){
-        
         req.userId = (decoded as any).id;  // or (decoded as jwtPayload) => coz we know bt T.S not
         next() 
     }else {
