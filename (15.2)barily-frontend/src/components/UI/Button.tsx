@@ -7,6 +7,8 @@ import { ReactElement } from "react";
     startIcon?: ReactElement;
     endIcon ?:ReactElement;
     onClick?: () => void;
+    fullwidth ? : boolean;
+    loading ?:boolean;
  }
 
  const variateStyles ={
@@ -22,7 +24,8 @@ import { ReactElement } from "react";
 
  export const Button = (props:Buttonprops) =>{
     return <button onClick={props.onClick} className={`${variateStyles[props.variate]}  
-    ${defaultstyles} ${sizestyle[props.size]}`} > 
+    ${defaultstyles} ${sizestyle[props.size]} ${props.fullwidth ? " w-full flex justify-center items-center": ""}
+    ${props.loading ? " opacity-45" : "" }` } > 
 
       {props.startIcon && <div className="pr-2">{props.startIcon}</div>}
       <span>{props.text}</span>
@@ -31,8 +34,7 @@ import { ReactElement } from "react";
     </button>
  }
 
-//  <Button variate="primary" size="sm" onClick={()=> {}} 
-//  text={"share"} ></Button>
+
 
 
 
