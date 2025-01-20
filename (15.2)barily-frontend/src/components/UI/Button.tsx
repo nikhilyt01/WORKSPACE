@@ -15,7 +15,7 @@ import { ReactElement } from "react";
    "primary":"bg-purple-600 text-white ", 
    "secondary":"bg-purple-300 text-purple-600"
  }
- const defaultstyles="rounded-xl p-4 font-light flex items-center";
+ const defaultstyles="rounded-xl mb-2 p-4 font-light flex items-center";
  const sizestyle={
    "sm":"py-1 px-2",
    "md":"py-2 px-4",
