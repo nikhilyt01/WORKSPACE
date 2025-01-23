@@ -7,7 +7,7 @@ import { JWT_SECRET } from "./config";
 import { userMiddleware } from "./middleware";
 import { linkmodel } from "./db";
 import {random} from "./utils"
-import { userInfo } from "os";
+import cors from "cors"
 
 
 declare global {
@@ -20,6 +20,7 @@ declare global {
 
 const app=express()
 app.use(express.json());
+app.use(cors());
 
 app.post("/api/v1/signup",async (req,res) => {
     //todo zod /// hash pasword
@@ -67,9 +68,11 @@ app.post("/api/v1/signin",async (req,res) => {
 app.post("/api/v1/content",userMiddleware,async (req,res) => {
     const link=req.body.link;
     const type=req.body.type;
+    const title=req.body.title;
     await contentmodel.create({
         link,
         type,
+        title,
         userId:req.userId,
         tags:[]
     })
