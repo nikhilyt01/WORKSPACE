@@ -11,8 +11,8 @@ app.post("/signup",async (req,res) =>{
     const password = req.body.password;
     const email = req.body.email;
    try{
-    const insertquery= `INSERT INTO users(username,email,password) VALUES ( '${username}' ,'${email}' ,'${password}'  );` 
-    const response = await pgClient.query(insertquery);
+    const insertquery= `INSERT INTO users(username,email,password) VALUES ( $1 ,$2 ,$3  );` 
+    const response = await pgClient.query(insertquery,[username,email,password]);
 
     res.json({
         msg : "you have signed up"
@@ -20,7 +20,8 @@ app.post("/signup",async (req,res) =>{
 
 }catch(e){
     res.json({
-        msg:"error while signup"
+        msg:"error while signup",
+        error: e
     })
 }
 
