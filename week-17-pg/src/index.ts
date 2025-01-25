@@ -44,4 +44,20 @@ app.post("/signup",async (req,res) =>{
 }
 
 })
+app.get("/metadata",async (req,res)=>{
+    const id=req.query.id;
+
+    const query1=`SELECT username,email,password FROM users WHERE id=$1 ;`
+    const resp1= await pgClient.query(query1,[id]);
+
+    const query2= `SELECT city,country,pincode,street FROM addresses WHERE user_id=$1 ;`
+    const resp2= await pgClient.query(query2,[id]);
+
+    res.json({
+        user:resp1.rows[0],
+        address: resp2.rows[0]
+    })
+})
+
+
 app.listen(3000);
