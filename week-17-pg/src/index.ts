@@ -19,21 +19,27 @@ app.post("/signup",async (req,res) =>{
 
    try{
     const insertquery= `INSERT INTO users(username,email,password) VALUES ( $1 ,$2 ,$3  ) RETURNING id;` 
-    const response = await pgClient.query(insertquery,[username,email,password]);
-    
-    const userid= response.rows[0].id;
-
     const addressinsert =`INSERT INTO addresses (city,country,street,pincode,user_id) VALUES($1,$2,$3,$4,$5) ;`
-    const addressesquery = await pgClient.query(addressinsert,[city,country,street,pincode,userid])
+    
+    await pgClient.query("BEGIN ;");  // trancation wrap 
+
+
+    const response = await pgClient.query(insertquery,[username,email,password]);
+    const userId= response.rows[0].id;
+    const addressesquery = await pgClient.query(addressinsert,[city,country,street,pincode,userId])
+   
+   
+    await pgClient.query("COMMIT ;")
     
     res.json({
         msg : "you have signed up"
     })
 
 }catch(e){
+    console.log(e);
     res.json({
         msg:"error while signup",
-        error: e
+       
     })
 }
 
