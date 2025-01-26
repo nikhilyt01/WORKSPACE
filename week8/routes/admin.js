@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const { Router } = require("express");          // using this we don't need to write /admin/signin
 const adminrouter =Router();
 
 const {adminModel, courseModel} =require("../db");

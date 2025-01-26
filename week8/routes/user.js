@@ -8,7 +8,7 @@ const {purchaseModel } =require("../db");
 const {courseModel} =require("../db");
 
 
-
+//api/v1/user
 userrouter.post("/signup",async function(req,res){
     const {email,password,firstname,lastname} = req.body;//to add zod 
     //to add :hash pass so plaintext is not stored in db 
@@ -69,7 +69,7 @@ userrouter.get("/purchases",usermiddleware,async function(req,res){
     res.json({
         purchases,
         coursesData
-    })
+    })   
    
 })
 

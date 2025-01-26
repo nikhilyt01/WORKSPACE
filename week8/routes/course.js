@@ -5,6 +5,8 @@ const {courseModel} =require("../db");
 const {purchaseModel } =require("../db");
 const {usermiddleware}=require("../middlewares/user")
 
+
+///api/v1/course
 courserouter.post("/purchases",usermiddleware,async function(req,res){
     const userId = req.userid;
     const courseId = req.body.courseId;

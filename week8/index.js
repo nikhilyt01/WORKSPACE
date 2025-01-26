@@ -14,7 +14,7 @@ const { adminrouter } =require("./routes/admin")
 
 app.use(express.json())
 
-app.use("/api/v1/user",userrouter);
+app.use("/api/v1/user",userrouter);        // /api/v1/user/anything will be handled by userrputer
 app.use("/api/v1/course",courserouter);
 app.use("/api/v1/admin",adminrouter); //1st argument is prefix
 

@@ -82,7 +82,7 @@ function App() {
                 key={index}
                 className={`p-2 my-2 rounded ${
                   index % 2 === 0
-                    ? "bg-blue-500 text-white self-start"
+                    ? "bg-red-500 text-white self-start"
                     : "bg-green-500 text-white self-end"
                 }`}
                 style={{

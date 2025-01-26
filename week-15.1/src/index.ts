@@ -85,7 +85,7 @@ app.get("/api/v1/content",userMiddleware,async (req,res) => {
     const userId=req.userId;
     const content= await contentmodel.find({
         userId:userId
-    }).populate("userId","username")
+    }).populate("userId","username")          // populate is property of mongoose for relation to jisko refernece hai usko de or khali username
     res.json({content})
 
 
