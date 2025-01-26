@@ -16,10 +16,11 @@ app.post("/signup", async function(req, res) {
     // add validationn like it should have 1 ucase 1 lcase 1special char
 
     const requiredbody=z.object({
-        email:z.string().min(5).max(100).email(),
+        email:z.string().min(5).max(100).email(30,{msg:"incorrect email"}),
         name:z.string().min(5).max(100),
         password:z.string().min(5).max(30)
     }) 
+    
     const parsedDatawithSuccess= requiredbody.safeParse(req.body);
     if(!parsedDatawithSuccess.success){
         res.json({
