@@ -9,6 +9,7 @@ import { linkmodel } from "./db";
 import {random} from "./utils"
 import cors from "cors"
 import {z} from "zod"
+import bcrypt from 'bcrypt';
 
 
 declare global {
@@ -35,10 +36,21 @@ app.post("/api/v1/signup",async (req,res) => {
     //todo zod /// hash pasword
     const username = req.body.username;
     const password = req.body.password;
+    const parseddatawithsuccess= requiredbody.safeParse(req.body);
+    if(!parseddatawithsuccess.success){
+        res.json({
+            message:"incorrect input",
+            error:parseddatawithsuccess.error
+        })
+        return;
+    }
+
+
    try{
+    const hashedpass = await bcrypt.hash(password,5);  //
      await usermodel.create({
         username:username,
-        password:password
+        password:hashedpass
      })
      res.json({
         msg:"you are singedup"
@@ -56,8 +68,18 @@ app.post("/api/v1/signin",async (req,res) => {
     const password = req.body.password;
     const existinguser= await usermodel.findOne({
         username,
-        password
+        
     })
+    if(!existinguser){
+       return res.status(403).json({message:"plzz signup"})
+    }
+    
+    const ismatch= await bcrypt.compare(password,existinguser.password);
+    if(!ismatch){
+        res.json({
+            message:"wrong credential"
+        })
+    }
     if(existinguser){
         const token=jwt.sign({
             id:existinguser._id
