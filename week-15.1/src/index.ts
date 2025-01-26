@@ -8,6 +8,7 @@ import { userMiddleware } from "./middleware";
 import { linkmodel } from "./db";
 import {random} from "./utils"
 import cors from "cors"
+import {z} from "zod"
 
 
 declare global {
@@ -17,6 +18,14 @@ declare global {
         }
     }
 }
+
+const requiredbody= z.object({
+    username : z.string().min(1,{message:"username required"}),
+    name:z.string().min(1).max(100),
+    password: z.string(),
+    email:z.string().email()
+    
+})
 
 const app=express()
 app.use(express.json());
