@@ -36,8 +36,7 @@ app.use(cors());
 
 app.post("/api/v1/signup",async (req,res) => {
     //todo zod /// hash pasword
-    const username = req.body.username;
-    const password = req.body.password;
+    const {username,password} :signuprequest =req.body;
     const parseddatawithsuccess=  requiredbody.safeParse(req.body);
     if(!parseddatawithsuccess.success){
         res.json({
@@ -68,15 +67,22 @@ app.post("/api/v1/signup",async (req,res) => {
 })
 
 app.post("/api/v1/signin",async (req,res):fun => {
-    const username =req.body.username;
-    const password = req.body.password;
+   ;
+    const parseddatawithsuccess=requiredbody.safeParse(req.body)
+    if(!parseddatawithsuccess.success){
+        return res.json({
+            message:"invalid input",
+            errors:parseddatawithsuccess.error.errors.map((err)=>{err.message})
+        })
+    }
+    const {username,password} :signuprequest =parseddatawithsuccess.data
     const existinguser= await usermodel.findOne({
         username,
         
     })
     if(!existinguser){
-       return res.status(403).json({message:"plzz signup"})
-       return;
+       return res.status(403).json({message:"plzz signup first"})
+       
     }
     
     const ismatch= await bcrypt.compare(password,existinguser.password!);  // ! means not nulli.e password exist
@@ -88,7 +94,7 @@ app.post("/api/v1/signin",async (req,res):fun => {
     if(existinguser){
         const token=jwt.sign({
             id:existinguser._id
-        },JWT_SECRET)
+        },JWT_SECRET,{expiresIn:"7h"})
 
       return  res.json({
             token
