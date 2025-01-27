@@ -111,6 +111,15 @@ app.post("/api/v1/content",userMiddleware,async (req,res) => {
     const link=req.body.link;
     const type=req.body.type;
     const title=req.body.title;
+    const tags =req.body.type
+    if(!link || !title || !type) {
+        return res.json({message:"input field required :link ,title, type"})
+   if ( !Array.isArray(tags) || tags.some(tag => {typeof tag!=="string"})   ){
+    return res.json({message:"tags must be array of string"})
+
+   }
+
+    }
     await contentmodel.create({
         link,
         type,
@@ -125,18 +134,26 @@ app.post("/api/v1/content",userMiddleware,async (req,res) => {
 
 app.get("/api/v1/content",userMiddleware,async (req,res) => {
     const userId=req.userId;
+
+    try{
     const content= await contentmodel.find({
         userId:userId
     }).populate("userId","username")          // populate is property of mongoose for relation to jisko refernece hai usko de or khali username
     res.json({content})
-
+    }catch(e:any){
+        res.json({message:"internal error occured",error:e.message})
+    }
 
 })
 app.delete("/api/v1/content",userMiddleware,async (req,res) => {
-     await contentmodel.deleteMany({
-        userId:req.userId
-     })
-     res.json({ msg:"contents deleted"})
+    const {contentId} =req.body;
+
+    try{
+      await contentmodel.deleteOne({
+         userId:req.userId,_id = contentId
+      })
+      res.json({ msg:"contents deleted"})
+    }
  
 })
 
