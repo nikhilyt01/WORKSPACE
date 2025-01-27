@@ -22,11 +22,13 @@ declare global {
 
 const requiredbody= z.object({
     username : z.string().min(1,{message:"username required"}),
-    name:z.string().min(1).max(100),
-    password: z.string(),
-    email:z.string().email()
+   
+    password: z.string().min(8,{message:"password must be of 8 character "}),
+  
     
 })
+type signuprequest= z.infer<typeof requiredbody >
+type fun = Promise<any>
 
 const app=express()
 app.use(express.json());
@@ -36,17 +38,18 @@ app.post("/api/v1/signup",async (req,res) => {
     //todo zod /// hash pasword
     const username = req.body.username;
     const password = req.body.password;
-    const parseddatawithsuccess= requiredbody.safeParse(req.body);
+    const parseddatawithsuccess=  requiredbody.safeParse(req.body);
     if(!parseddatawithsuccess.success){
         res.json({
             message:"incorrect input",
-            error:parseddatawithsuccess.error
+            error:parseddatawithsuccess.error.errors
         })
         return;
     }
 
-
+    
    try{
+    
     const hashedpass = await bcrypt.hash(password,5);  //
      await usermodel.create({
         username:username,
@@ -59,11 +62,12 @@ app.post("/api/v1/signup",async (req,res) => {
         res.status(411).json({
             msg:"user aldreay exists"
         })
+       
     }
 
 })
 
-app.post("/api/v1/signin",async (req,res) => {
+app.post("/api/v1/signin",async (req,res):fun => {
     const username =req.body.username;
     const password = req.body.password;
     const existinguser= await usermodel.findOne({
@@ -72,9 +76,10 @@ app.post("/api/v1/signin",async (req,res) => {
     })
     if(!existinguser){
        return res.status(403).json({message:"plzz signup"})
+       return;
     }
     
-    const ismatch= await bcrypt.compare(password,existinguser.password);
+    const ismatch= await bcrypt.compare(password,existinguser.password!);  // ! means not nulli.e password exist
     if(!ismatch){
         res.json({
             message:"wrong credential"
@@ -85,12 +90,12 @@ app.post("/api/v1/signin",async (req,res) => {
             id:existinguser._id
         },JWT_SECRET)
 
-        res.json({
+      return  res.json({
             token
         })
     }
     else{
-        res.status(403).json({msg:"wrong credential"})
+       return res.status(403).json({msg:"wrong credential"})
     }
   
 
