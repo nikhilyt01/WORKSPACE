@@ -25,11 +25,16 @@ export  function Signin(){
         })
         const jwt = response.data.token;
         localStorage.setItem("token",jwt);
-    }catch(e){
-        console.error("signin error :",e)
+        alert(response.data.message)
+        navigate("/Dashboard")
+    }catch(e:any){
+        const error = e as {response?:{data?:{message?:string}}};
+        const errormsg = error.response?.data?.message;
+        alert(errormsg)
+        
     }finally{
         setLoading(false);
-        navigate("/Dashboard")
+        
     
     }
 
@@ -37,7 +42,7 @@ export  function Signin(){
 
     return <div className={"h-screen w-screen bg-zinc-900 flex justify-center items-center"}>
                 <div className={"bg-zinc-500 rounded-xl border min-w-48 p-8 "}>
-                  <h2 className="text-2xl text-center font-bold m-6">SignUp</h2>
+                  <h2 className="text-2xl text-center font-bold m-6">SignIn</h2>
                   <form onSubmit={handlesignin}>
                     <div>
                       <label htmlFor="username" className="block font-sm ">username</label>
@@ -48,12 +53,12 @@ export  function Signin(){
                       <input  minLength={7} id="password" type="password" ref={PasswordRef} required  className="focus:outline-none focus:ring-2  focus:ring-blue-500 w-full px-2 py-1 rounded-1 outline  mb-2"></input>
                     </div>
                     <div>
-                      <Button  type="submit" loading={loading} text={loading?"Signing up..":"Sign up"}  variate="primary" size="md"fullwidth={true}  ></Button>
+                      <Button  type="submit" loading={loading} text={loading?"Signing In..":"Sign In"}  variate="primary" size="md"fullwidth={true}  ></Button>
                     </div>
                   
                      <p className="text-sm text-center mt-4">
-                      Already have account?
-                      <a href="/signin" className="text-blue-900  hover:underline"> Log in </a>
+                      Didn't have account?
+                      <a href="/signup" className="text-blue-900  hover:underline"> Sign Up </a>
                      </p>
                   </form>
                 </div>
