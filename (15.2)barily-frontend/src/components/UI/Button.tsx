@@ -9,6 +9,8 @@ import { ReactElement } from "react";
     onClick?: () => void;
     fullwidth ? : boolean;
     loading ?:boolean;
+    type?:"button" | "submit" | "reset";
+    disabled?:boolean
  }
 
  const variateStyles ={
@@ -23,7 +25,7 @@ import { ReactElement } from "react";
  }
 
  export const Button = (props:Buttonprops) =>{
-    return <button onClick={props.onClick} className={`${variateStyles[props.variate]}  
+    return <button disabled={props.disabled} type={props.type || "button"} onClick={props.onClick} className={`${variateStyles[props.variate]}  
     ${defaultstyles} ${sizestyle[props.size]} ${props.fullwidth ? " w-full flex justify-center items-center": ""}
     ${props.loading ? " opacity-45" : "" }` } > 
 
