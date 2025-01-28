@@ -11,6 +11,7 @@ import cors from "cors"
 import {z} from "zod"
 import bcrypt from 'bcrypt';
 import {Request,Response} from "express";
+import { mongooconnect } from "./db";
 
 
 declare global {
@@ -56,11 +57,11 @@ app.post("/api/v1/signup",async (req,res) => {
         password:hashedpass
      })
      res.json({
-        msg:"you are singedup"
+        message:"you are singedup"
      })
     }catch(e) {
         res.status(411).json({
-            msg:"user aldreay exists"
+            message:"user aldreay exists"
         })
        
     }
@@ -68,15 +69,10 @@ app.post("/api/v1/signup",async (req,res) => {
 })
 
 app.post("/api/v1/signin",async (req,res):fun => {
-   ;
-    const parseddatawithsuccess=requiredbody.safeParse(req.body)
-    if(!parseddatawithsuccess.success){
-        return res.json({
-            message:"invalid input",
-            errors:parseddatawithsuccess.error.errors.map((err)=>{err.message})
-        })
-    }
-    const {username,password} :signuprequest =parseddatawithsuccess.data
+   
+  
+    const {username,password} :signuprequest =req.body;
+    try{
     const existinguser= await usermodel.findOne({
         username,
         
@@ -98,12 +94,13 @@ app.post("/api/v1/signin",async (req,res):fun => {
         },JWT_SECRET,{expiresIn:"7h"})
 
       return  res.json({
+          message:"Signin successful",
             token
         })
     }
-    else{
-       return res.status(403).json({msg:"wrong credential"})
-    }
+}catch(e:any){
+    return res.json({message:"some error occured",error:e.message})
+}
   
 
 })
@@ -261,4 +258,13 @@ app.get("/api/v1/brain/:sharelink",userMiddleware, async (req:Request,res:Respon
 
 })
 
-app.listen(3000);
+const startserver = async() =>{
+    try{
+    await mongooconnect();
+    app.listen(3000,()=>{console.log("server is running")})
+    }catch(e){
+        console.error("failed to start server",e)
+    }
+}
+startserver();
+
