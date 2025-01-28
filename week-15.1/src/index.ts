@@ -10,6 +10,7 @@ import {random} from "./utils"
 import cors from "cors"
 import {z} from "zod"
 import bcrypt from 'bcrypt';
+import {Request,Response} from "express";
 
 
 declare global {
@@ -107,19 +108,20 @@ app.post("/api/v1/signin",async (req,res):fun => {
 
 })
 
-app.post("/api/v1/content",userMiddleware,async (req,res) => {
+app.post("/api/v1/content",userMiddleware,async (req,res):fun => {
     const link=req.body.link;
     const type=req.body.type;
     const title=req.body.title;
     const tags =req.body.type
     if(!link || !title || !type) {
         return res.json({message:"input field required :link ,title, type"})
-   if ( !Array.isArray(tags) || tags.some(tag => {typeof tag!=="string"})   ){
-    return res.json({message:"tags must be array of string"})
-
-   }
+  
 
     }
+    // if ( !Array.isArray(tags) || tags.some(tag => {typeof tag!=="string"})   ){         // when we use tags as array
+    //     return res.json({message:"tags must be array of string"})
+    
+    //    }
     await contentmodel.create({
         link,
         type,
@@ -132,7 +134,7 @@ app.post("/api/v1/content",userMiddleware,async (req,res) => {
     })
 })
 
-app.get("/api/v1/content",userMiddleware,async (req,res) => {
+app.get("/api/v1/content",userMiddleware,async (req,res):fun => {
     const userId=req.userId;
 
     try{
@@ -145,20 +147,62 @@ app.get("/api/v1/content",userMiddleware,async (req,res) => {
     }
 
 })
-app.delete("/api/v1/content",userMiddleware,async (req,res) => {
+app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Response):fun =>{
+    const filter =req.params.contents;
+    const userId=req.userId;
+
+    const Filtermap: Record<string, string | string[] > = {
+        "youtube":"youtube",
+        'Tweets': 'Twitter',
+        'Documents': 'Document',
+        'Website': 'Links',
+        'Links': ['Links', 'Website'],
+    }
+    const type = filter == "all" ? "" :Filtermap[filter] ;
+    try{
+        let query: Record <string,unknown > ;
+        if(type){
+            query=Array.isArray(type) ? {type : {$in:type},userId} : {type,userId}
+
+
+        }
+        else{
+            query ={userId}
+
+        }
+
+       const content= await contentmodel.find(query)
+        res.json({message:"content loaded ",content})
+    }catch(e){
+        return res.json({message:"some thing went wrong ",error:e})
+    }
+
+
+})
+app.delete("/api/v1/content",userMiddleware,async (req:Request,res:Response):fun => {
     const {contentId} =req.body;
+    if(!contentId){
+        res.json({message:"content id is required"})
+    }
 
     try{
-      await contentmodel.deleteOne({
-         userId:req.userId,_id = contentId
+      const result=await contentmodel.deleteOne({
+         userId:req.userId,
+         _id : contentId
       })
-      res.json({ msg:"contents deleted"})
+      if(!result.deletedCount){                         // deletedCount tells how many content deleted so if 0
+        return res.json({message:"content not found or unauthorised"})
+      }
+     return  res.json({ msg:"contents deleted"})
+    }catch(e:any){
+        res.json({message:"internal error occured",error:e.message})
     }
  
 })
 
-app.post("/api/v1/brain/share",userMiddleware,async(req,res) => {
+app.post("/api/v1/brain/share",userMiddleware,async(req:Request,res:Response):fun => {
     const Share= req.body.share; // true or false
+    try{
     if(Share){
       
       const existinguser= await linkmodel.findOne({
@@ -178,17 +222,21 @@ app.post("/api/v1/brain/share",userMiddleware,async(req,res) => {
       })
       res.json({ hash})
     }
+}catch(e){
+    return res.json({message:"some error occured",error:e})
+}
    
 
 })
 
-app.get("/api/v1/brain/:sharelink",userMiddleware, async (req,res)=>{
+app.get("/api/v1/brain/:sharelink",userMiddleware, async (req:Request,res:Response):fun =>{
     const hash =req.params.sharelink;
     const link= await linkmodel.findOne({
         hash
     })
+    try{
     if(!link){
-        res.json({msg:"incorrect input"})
+        res.status(404).json({msg:"share link error"})
         return;
     }
     const content = await contentmodel.find({
@@ -207,7 +255,9 @@ app.get("/api/v1/brain/:sharelink",userMiddleware, async (req,res)=>{
        username:user.username,
        content:content
  })
-
+    } catch(e){
+        return res.json({message:"some error occured",error:e})
+    }
 
 })
 
