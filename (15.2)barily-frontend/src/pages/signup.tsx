@@ -43,18 +43,18 @@ export function Signup(){
                 <div className={"bg-zinc-700 rounded-xl border w-full max-w-md p-8 "}>
                   <h2 className="text-2xl text-center font-bold m-6">SignUp</h2>
                   <form onSubmit={handlesignup}>
-                    <div>
+                    <div className="mb-2">
                       <label htmlFor="username" className="block font-sm ">username</label>
                       <input 
                             id="username"
                             type="text" 
                             ref={UsernameRef} 
                             required 
-                            className="w-full bg-zinc-500 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            className="w-full bg-zinc-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
 
                       </input>
                     </div>
-                    <div>
+                    <div className="mb-2">
                       <label htmlFor="password" className="block font-sm ">password</label>
                       <input  
                           minLength={7} 
@@ -62,7 +62,7 @@ export function Signup(){
                           type="password" 
                           ref={PasswordRef} 
                           required  
-                          className="focus:outline-none focus:ring-2  focus:ring-blue-500 w-full bg-zinc-500 px-2 py-1 rounded   mb-2"></input>
+                          className="focus:outline-none focus:ring-2  focus:ring-blue-500 w-full bg-zinc-600 px-2 py-1 rounded   mb-2"></input>
                     </div>
                     <div>
                       <Button  type="submit" loading={loading} text={loading?"Signing up..":"Sign up"}  variate="primary" size="md"fullwidth={true}  ></Button>
