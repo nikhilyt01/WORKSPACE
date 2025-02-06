@@ -1,4 +1,4 @@
-import { InputBox } from "../components/UI/inputbox";
+import React from "react"
 import { Button } from "../components/UI/Button";
 import {useRef} from "react"
 import axios from "axios";
@@ -14,7 +14,8 @@ export  function Signin(){
     const UsernameRef= useRef<HTMLInputElement|null>(null);
     const PasswordRef = useRef<HTMLInputElement|null>(null);
 
-    async function handlesignin(){
+    async function handlesignin(e:React.FormEvent<HTMLInputElement>){
+        e.preventDefault();
         setLoading(true);
         const username = UsernameRef.current?.value;
         const password = PasswordRef.current?.value;
@@ -25,7 +26,8 @@ export  function Signin(){
         })
         const jwt = response.data.token;
         localStorage.setItem("token",jwt);
-        alert(response.data.message)
+        alert(response.data.message )
+
         navigate("/Dashboard")
     }catch(e:any){
         const error = e as {response?:{data?:{message?:string}}};
@@ -35,7 +37,6 @@ export  function Signin(){
     }finally{
         setLoading(false);
         
-    
     }
 
     }
@@ -43,7 +44,7 @@ export  function Signin(){
     return <div className={"h-screen w-screen bg-zinc-900 flex justify-center items-center"}>
                 <div className={"bg-zinc-500 rounded-xl border min-w-48 p-8 "}>
                   <h2 className="text-2xl text-center font-bold m-6">SignIn</h2>
-                  <form onSubmit={handlesignin}>
+                  <form  onSubmit={handlesignin}>
                     <div>
                       <label htmlFor="username" className="block font-sm ">username</label>
                       <input id="username"type="text" ref={UsernameRef} required className="w-full px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>

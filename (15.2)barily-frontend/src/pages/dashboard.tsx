@@ -10,6 +10,7 @@ import { Sidebar } from '../components/UI/sidebar';
 import { useContents } from '../hooks/useContents';
 import axios from "axios"
 import { Backend_url } from '../config';
+import { DarkModeToggle } from './darkmode';
 
 export function Dashboard() {
   const [modalopen,setModalopen] =useState(false);
@@ -19,7 +20,8 @@ export function Dashboard() {
 //className={"py-1 pr-4 flex justify-end"}
   return (<div>
          <Sidebar />
-     <div className="p-4 ml-72 bg-gray-100 min-h-screen border-2"> 
+     <div className="p-4 ml-72 bg-gray-100 min-h-screen border-2">
+
      
        <CreateContentModal open={modalopen} onClose={()=>setModalopen(false)} />
        <div className={"flex justify-end gap-4"}>

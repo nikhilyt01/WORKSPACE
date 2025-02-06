@@ -15,7 +15,7 @@ export function Signup(){
     const [loading,setLoading] = useState(false);
 
    async  function  handlesignup(e:React.FormEvent<HTMLFormElement>){
-    e.preventDefault();
+      e.preventDefault();
        setLoading(true)
        const username= UsernameRef.current?.value;
        const password = PasswordRef.current?.value;
@@ -39,17 +39,30 @@ export function Signup(){
     }
 
 
-    return <div className={"h-screen w-screen bg-zinc-900 flex justify-center items-center"}>
-                <div className={"bg-zinc-500 rounded-xl border min-w-48 p-8 "}>
+    return <div className={"h-screen w-screen bg-zinc-900 flex justify-center items-center text-white "}>
+                <div className={"bg-zinc-700 rounded-xl border w-full max-w-md p-8 "}>
                   <h2 className="text-2xl text-center font-bold m-6">SignUp</h2>
                   <form onSubmit={handlesignup}>
                     <div>
                       <label htmlFor="username" className="block font-sm ">username</label>
-                      <input id="username"type="text" ref={UsernameRef} required className="w-full px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
+                      <input 
+                            id="username"
+                            type="text" 
+                            ref={UsernameRef} 
+                            required 
+                            className="w-full bg-zinc-500 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                      </input>
                     </div>
                     <div>
                       <label htmlFor="password" className="block font-sm ">password</label>
-                      <input  minLength={7} id="password" type="password" ref={PasswordRef} required  className="focus:outline-none focus:ring-2  focus:ring-blue-500 w-full px-2 py-1 rounded-1 outline  mb-2"></input>
+                      <input  
+                          minLength={7} 
+                          id="password" 
+                          type="password" 
+                          ref={PasswordRef} 
+                          required  
+                          className="focus:outline-none focus:ring-2  focus:ring-blue-500 w-full bg-zinc-500 px-2 py-1 rounded   mb-2"></input>
                     </div>
                     <div>
                       <Button  type="submit" loading={loading} text={loading?"Signing up..":"Sign up"}  variate="primary" size="md"fullwidth={true}  ></Button>
@@ -57,7 +70,7 @@ export function Signup(){
                   
                      <p className="text-sm text-center mt-4">
                       Already have account?
-                      <a href="/signin" className="text-blue-900  hover:underline"> Log in </a>
+                      <a href="/signin" className="text-blue-400  hover:underline"> Log in </a>
                      </p>
                   </form>
                 </div>
