@@ -20,7 +20,7 @@ export function Dashboard() {
 //className={"py-1 pr-4 flex justify-end"}
   return (<div>
          <Sidebar />
-     <div className="p-4 ml-72 bg-gray-100 min-h-screen border-2">
+     <div className="p-4 ml-72 bg-zinc-900 min-h-screen ">
 
      
        <CreateContentModal open={modalopen} onClose={()=>setModalopen(false)} />
