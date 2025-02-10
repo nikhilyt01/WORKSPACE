@@ -10,19 +10,14 @@ interface buttonprops {
 export const Button1 = ({text,icons,onClick,variate}:buttonprops) =>{
     return (
         <div>
-            { onClick ?( <div onClick={onClick} className={`${variate} flex items-center rounded-full px-4 py-2`}>
+             <div onClick={onClick} className={`${variate} flex items-center gap-2 rounded-full px-4 py-2`}>
                 <div>{text}</div>
                 {icons}
 
-            </div>) 
-            :(<div className={`${variate} flex items-center rounded-full px-4 py-2`}>
-                <div>{text}</div>
-                {icons}
-
-            </div>)
-            }
+            </div>
             
         </div>
     )
 
 }
+

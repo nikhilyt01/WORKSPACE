@@ -15,14 +15,14 @@ export function Headers(){
 
              <div className="hidden gap-10 md:flex ">
                 <a href="#about">About</a>
-                <a href="#contact">contact</a>
-                <a href="#updates">new updates</a>
+                <a href="#contact">Contact</a>
+                <a href="#updates">New Updates</a>
 
              </div>
 
              <div className="flex">
-                <Button1 text={"Get Started"} onClick={()=> navigate("/signup")} variate={"bg-zinc-100 border "}></Button1>
-                <Button1 text={"Login in"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 border text-white"} icons={<FaArrowRightLong/>}></Button1>
+                <Button1 text={"Get Started"} onClick={()=> navigate("/signup")} variate={"bg-zinc-100 border shadow-lg shadow-slate-500/50 "}></Button1>
+                <Button1 text={"Login in"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 border text-white shadow-lg shadow-cyan-500/50"} icons={<FaArrowRightLong/>}></Button1>
 
              </div>
 

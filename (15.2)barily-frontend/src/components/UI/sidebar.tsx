@@ -9,7 +9,7 @@ export const Sidebar =()=>{
             <div className="text-purple-600 pr-2">
                <Logo />
             </div>
-            Brainly
+            Scholarly
         </div>
         <div className={"pt-4 pl-4 "}>
             <SidebarItem text="Twitter" Icon={<TwitterIcon/>} />
