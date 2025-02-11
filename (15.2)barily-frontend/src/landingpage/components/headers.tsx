@@ -6,7 +6,7 @@ import {useNavigate} from "react-router-dom";
 export function Headers(){
     const navigate= useNavigate();
     return (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center ">
              <div className="flex items-center gap-2 text-lg font-semibold">
                 <Logo />
                 <div>Scholarly</div>
@@ -20,8 +20,8 @@ export function Headers(){
 
              </div>
 
-             <div className="flex">
-                <Button1 text={"Get Started"} onClick={()=> navigate("/signup")} variate={"bg-zinc-100 border shadow-lg shadow-slate-500/50 "}></Button1>
+             <div className="flex gap-2">
+                <Button1 text={"Get Started"} onClick={()=> navigate("/signup")} variate={"bg-zinc-200 text-black border shadow-lg shadow-slate-500/50 "}></Button1>
                 <Button1 text={"Login in"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 border text-white shadow-lg shadow-cyan-500/50"} icons={<FaArrowRightLong/>}></Button1>
 
              </div>
