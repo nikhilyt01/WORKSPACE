@@ -41,9 +41,9 @@ export function CreateContentModal({open,onClose}){
 
    <div className="w-screen h-screen  fixed top-0 left-0  flex justify-center "> 
         <div className={"flex flex-col justify-center"}>
-           <span className={"bg-white opacity-100 p-4 rounded"}>
+           <span className={"bg-zinc-800 opacity-100 p-4 rounded-lg shadow-lg shadow-cyan-500/50 outline outline-gray-200 "}>
                <div className={"flex justify-end"}>
-                  <div onClick={onClose} className={"cursor-pointer"}>
+                  <div onClick={onClose} className={"cursor-pointer text-red-500"}>
                      <CrossIcon />
                   </div>
                </div>
@@ -52,7 +52,7 @@ export function CreateContentModal({open,onClose}){
                   <InputBox reference={linkRef} placeholder={"link"}/>
               
               </div>
-              <h1>Type</h1>
+              <h1 className="text-xl font-semibold text-white">Type</h1>
               <div className={"flex gap-1 p-4"}>
                <Button text="youtube"  size="lg" variate = {type===ContentType.Youtube ?
                "primary" : "secondary"} onClick={() => {setType(ContentType.Youtube)
