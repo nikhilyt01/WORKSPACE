@@ -26,7 +26,7 @@ export const About = () =>{
         <section className="py-20">
             <div className=" max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
-                    <h2 className="font-bold  text-[3vw] mb-4  ">Why Choose Us?</h2>
+                    <h2 className="font-bold  text-[4vw] mb-4  ">Why Choose Us?</h2>
                     <p className="text-sm md:text-md lg:text-xl text-zinc-300 max-w-2xl mx-auto">Scholarly is your creative haven—a digital canvas designed to capture, organize, and cultivate your ideas effortlessly. Our mission is to inspire innovation and enhance productivity through intuitive note-taking and seamless idea management.</p>
 
                 </div>

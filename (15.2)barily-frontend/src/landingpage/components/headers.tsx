@@ -21,8 +21,8 @@ export function Headers(){
              </div>
 
              <div className="flex gap-2">
-                <Button1 text={"Get Started"} onClick={()=> navigate("/signup")} variate={"bg-zinc-200 text-black border shadow-lg shadow-slate-500/50 "}></Button1>
-                <Button1 text={"Login in"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 border text-white shadow-lg shadow-cyan-500/50"} icons={<FaArrowRightLong/>}></Button1>
+                <Button1 text={"Signup"} onClick={()=> navigate("/signup")} variate={"bg-zinc-200 text-black border shadow-lg shadow-slate-500/50  "}></Button1>
+                <Button1 text={"Login"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 border-none text-white shadow-lg shadow-cyan-500/50"} icons={<FaArrowRightLong/>}></Button1>
 
              </div>
 
