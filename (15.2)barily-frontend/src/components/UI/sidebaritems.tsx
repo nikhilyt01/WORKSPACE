@@ -16,3 +16,4 @@ export function SidebarItem({text,Icon}:{
 
     </div>
 }
+ 
