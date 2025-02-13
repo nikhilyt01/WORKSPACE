@@ -149,8 +149,8 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
     const userId=req.userId;
 
     const Filtermap: Record<string, string | string[] > = {
-        "youtube":"youtube",
-        'Tweets': 'Twitter',
+        "Youtube":"youtube",
+        'Tweets': 'twitter',
         'Documents': 'Document',
         'Website': 'Links',
         'Links': ['Links', 'Website'],
