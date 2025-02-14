@@ -2,11 +2,12 @@
 import { ShareIcon } from "../../icons/shareicon"
 
 interface Cardprops {
+   id:any;
    link :string;
    title:string;
    type : "youtube" | "twitter"
 }
-export function Card({link,title,type}:Cardprops){
+export function Card({id,link,title,type}:Cardprops){
     return <div>
         <div className={"p-4 bg-white rounded-md shadow-md border-gray-300 max-w-72 border min-h-48 min-w-72" } >
            <div className={"flex justify-between"}>
