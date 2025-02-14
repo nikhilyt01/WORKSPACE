@@ -148,6 +148,7 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
     const filter =req.params.contents;
     const userId=req.userId;
 
+    console.log("filter received",filter);
     const Filtermap: Record<string, string | string[] > = {
         "Youtube":"youtube",
         'Tweets': 'twitter',
@@ -162,6 +163,7 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
             return res.json({message:"invalid filter type"})
         }
         if(type){
+            console.log("mapped type is:",type)
             query=Array.isArray(type) ? {type : {$in:type},userId} : {type,userId}
 
 
@@ -170,6 +172,7 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
             query ={userId}
 
         }
+        console.log("D.B query is ",query)
 
        const content= await contentmodel.find(query)
         res.json({message:"content loaded ",content})
