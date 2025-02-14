@@ -158,6 +158,9 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
     const type = filter == "all" ? "" :Filtermap[filter] ;
     try{
         let query: Record <string,unknown > ;
+        if(!type && filter!="all"){
+            return res.json({message:"invalid filter type"})
+        }
         if(type){
             query=Array.isArray(type) ? {type : {$in:type},userId} : {type,userId}
 
