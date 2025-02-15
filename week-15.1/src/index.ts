@@ -196,7 +196,7 @@ app.delete("/api/v1/content",userMiddleware,async (req:Request,res:Response):fun
       if(!result.deletedCount){                         // deletedCount tells how many content deleted so if 0
         return res.json({message:"content not found or unauthorised"})
       }
-     return  res.json({ msg:"contents deleted"})
+     return  res.json({ message:"contents deleted"})
     }catch(e:any){
         res.json({message:"internal error occured",error:e.message})
     }
