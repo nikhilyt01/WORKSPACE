@@ -41,6 +41,10 @@ wss.on("connection",(socket) =>{
             
         }
     })
+    socket.on("close",()=>{            // in sccket.io it is disconnect
+        console.log("user disconnected ")
+        allsockets=allsockets.filter((x)=> x.socket!=socket)
+    })
    
     
 })
