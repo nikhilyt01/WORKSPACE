@@ -12,9 +12,9 @@ let allsockets:user[] = [];
 wss.on("connection",(socket) =>{
    
 
-    socket.on("message",(message)=>{
-        //@ts-ignore
-        const parsedmessage = JSON.parse(message);
+    socket.on("message",(message)=>{    // socket.on means client is sending msg to server  & socket.send is method that server use to send message to client
+        
+        const parsedmessage = JSON.parse(message.toString());
         if (parsedmessage.type == "join"){
             console.log("user joined room :"+parsedmessage.payload.roomId)
             allsockets.push({
