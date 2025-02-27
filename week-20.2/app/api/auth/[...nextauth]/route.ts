@@ -9,32 +9,23 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 
+
+console.log(process.env.NEXTAUTH_SECRET)
 const handler = NextAuth({
     providers: [
         CredentialsProvider({
-            name:" email",
+            name:" Email",
             credentials:{
                 username:{label:"username",type:"text",placeholder:"harkirat@gmail.com"},
                 password:{label:"password",type:"password"}
             },
             async authorize(credentials,req){
-                const username=credentials?.username;
-                const password =credentials?.password;
-                console.log(username)
-
-
-                // this will hit DB to check username n password
-                const user ={
-                    name:"nikhil",
-                    id:"1",
-                    username:"nikhl@321"
-                }
-                 if(user){
-                     return user;
-                 } else{
-                    return null;
-                 }
-            }
+               return{
+                name:"nikhil",
+                id:"1",
+                email:"nikhil@gmail.com"
+               }
+            },
         }),
  
         // just to explore not working
@@ -44,7 +35,8 @@ const handler = NextAuth({
           }),
 
       
-    ]
+    ],
+    secret:process.env.NEXTAUTH_SECRET
 })
 
 export const  GET =handler
