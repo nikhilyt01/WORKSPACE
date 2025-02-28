@@ -71,7 +71,7 @@ const leave=()=>{
   return (
     <div className="h-screen bg-gray-900 flex justify-center items-center">
       {/* Mobile App Container */}
-      <div className="w-[360px] h-[600px]  border-2 border-gray-800 
+      <div className="w-[360px] h-[580px]  border-2 border-gray-800 
       rounded-lg shadow-lg flex flex-col overflow-hidden">
         {/* Header Section */}
         <div className="bg-blue-600 p-4 text-center">
@@ -85,7 +85,7 @@ const leave=()=>{
           {messages.length > 0 ? (
             messages.map((msg, index) => (
               <div    
-                key={index}
+                key={index}   
                 className={`p-2 my-2 rounded   font-semibold   w-fit bg-blue-500`}
              
               >
@@ -99,6 +99,7 @@ const leave=()=>{
 
         {/* Input Section */}
         {isJoined ? (
+      <div className="bg-zinc-900">
           <div className="bg-zinc-900 p-4 flex items-center">
             <input
               ref={inputRef}
@@ -112,8 +113,12 @@ const leave=()=>{
             >
               Send
             </button>
-            <button onClick={leave}>Leave</button>
+            
           </div>
+          <div className="text-center p-4">
+                <button className="rounded font-semibold bg-red-600 px-2 py-1 text-white hover:bg-red-700" onClick={leave}>Leave Room</button>
+          </div>
+      </div>
         ) : (
           <div className="bg-zinc-900 p-4 flex items-center">
             <input
