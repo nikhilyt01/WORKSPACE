@@ -62,6 +62,12 @@ function App() {
     }
   };
 
+const leave=()=>{
+  setRoomId("");
+  setIsJoined(false);
+  setMessages([])
+}
+
   return (
     <div className="h-screen bg-gray-900 flex justify-center items-center">
       {/* Mobile App Container */}
@@ -70,21 +76,17 @@ function App() {
         {/* Header Section */}
         <div className="bg-blue-600 p-4 text-center">
           <h1 className="text-xl font-bold">
-            {isJoined ? `Room: ${roomId}` : "Join a Room"}
+            {isJoined ? `Room ID: ${roomId}` : "Join a Room"}
           </h1>
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 bg-white">
+        <div className="flex-1 overflow-y-auto overflow-x-auto  p-4 bg-white">
           {messages.length > 0 ? (
             messages.map((msg, index) => (
               <div    
                 key={index}
-                className={`p-2 my-2 rounded w-fit ${
-                  index % 2 === 0
-                    ? "bg-red-500 text-white "
-                    : "bg-green-500 text-white "
-                }`}
+                className={`p-2 my-2 rounded   font-semibold   w-fit bg-blue-500`}
              
               >
                 {msg}
@@ -110,6 +112,7 @@ function App() {
             >
               Send
             </button>
+            <button onClick={leave}>Leave</button>
           </div>
         ) : (
           <div className="bg-zinc-900 p-4 flex items-center">
