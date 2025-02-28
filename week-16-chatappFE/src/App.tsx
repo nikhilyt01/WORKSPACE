@@ -65,7 +65,7 @@ function App() {
   return (
     <div className="h-screen bg-gray-900 flex justify-center items-center">
       {/* Mobile App Container */}
-      <div className="w-[360px] h-[640px] bg-gray-900 border-2 border-gray-800 
+      <div className="w-[360px] h-[600px]  border-2 border-gray-800 
       rounded-lg shadow-lg flex flex-col overflow-hidden">
         {/* Header Section */}
         <div className="bg-blue-600 p-4 text-center">
@@ -75,56 +75,53 @@ function App() {
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 bg-gray-800">
+        <div className="flex-1 overflow-y-auto p-4 bg-white">
           {messages.length > 0 ? (
             messages.map((msg, index) => (
               <div    
                 key={index}
-                className={`p-2 my-2 rounded ${
+                className={`p-2 my-2 rounded w-fit ${
                   index % 2 === 0
-                    ? "bg-red-500 text-white self-start"
-                    : "bg-green-500 text-white self-end"
+                    ? "bg-red-500 text-white "
+                    : "bg-green-500 text-white "
                 }`}
-                style={{
-                  maxWidth: "80%",
-                  alignSelf: index % 2 === 0 ? "flex-start" : "flex-end",
-                }}
+             
               >
                 {msg}
               </div>
             ))
           ) : (
-            <div className="text-center text-gray-400">No messages yet.</div>
+            <div className="text-center text-gray-800">No messages yet.</div>
           )}
         </div>
 
         {/* Input Section */}
         {isJoined ? (
-          <div className="bg-gray-700 p-4 flex items-center">
+          <div className="bg-zinc-900 p-4 flex items-center">
             <input
               ref={inputRef}
               type="text"
               placeholder="Type your message..."
-              className="flex-1 p-2 rounded bg-gray-800 text-white mr-2"
+              className="flex-1 p-2 rounded bg-zinc-800 text-white mr-2"
             />
             <button
               onClick={sendMessage}
-              className="bg-green-600 px-4 py-2 rounded hover:bg-green-700"
+              className="bg-green-500 px-4 py-2 font-semibold rounded hover:bg-green-700"
             >
               Send
             </button>
           </div>
         ) : (
-          <div className="bg-gray-700 p-4 flex items-center">
+          <div className="bg-zinc-900 p-4 flex items-center">
             <input
               ref={roomRef}
               type="text"
               placeholder="Enter Room ID"
-              className="flex-1 p-2 rounded bg-gray-800 text-white mr-2"
+              className="flex-1 p-2 rounded bg-zinc-800 text-white mr-2"
             />
             <button
               onClick={joinRoom}
-              className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 font-semibold text-white shadow shadow-cyan-500/50 px-4 py-2 rounded hover:bg-blue-700"
             >
               Join Room
             </button>
