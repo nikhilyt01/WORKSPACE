@@ -28,7 +28,7 @@ wss.on("connection",(socket) =>{
             console.log("user wants to chat")
             let currentUserRoom =null;
             for(let i=0;i< allsockets.length;i++){
-               if( allsockets[i].socket == socket){
+               if( allsockets[i].socket == socket){   // to checked user has joined room or not
                 currentUserRoom = allsockets[i].room
                }
             }
