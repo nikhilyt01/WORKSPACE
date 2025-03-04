@@ -9,20 +9,20 @@ export function Headers(){
         <div className="flex justify-between items-center ">
              <div className="flex items-center gap-2 text-lg font-semibold">
                 <Logo />
-                <div>Scholarly</div>
+                <div className="italic text-2xl font-semibold">Scholarly</div>
 
              </div>
 
              <div className="hidden gap-10 md:flex ">
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-                <a href="#updates">New Updates</a>
+                <button  className="text-gray-300 cursor-pointer hover:text-gray-50" onClick={()=>navigate("/random-url")} >About</button>
+                <button  className="text-gray-300 cursor-pointer hover:text-gray-50" onClick={()=>navigate("/random-url")}>Contact</button>
+                <button className="text-gray-300 cursor-pointer hover:text-gray-50" onClick={()=>navigate("/random-url")}>New Updates</button>
 
              </div>
 
              <div className="flex gap-2">
-                <Button1 text={"Signup"} onClick={()=> navigate("/signup")} variate={"bg-zinc-200 text-black border shadow-lg shadow-slate-500/50  "}></Button1>
-                <Button1 text={"Login"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 border-none text-white shadow-lg shadow-cyan-500/50"} icons={<FaArrowRightLong/>}></Button1>
+                <Button1 text={"Signup"} onClick={()=> navigate("/signup")} variate={"bg-zinc-200 hover:bg-zinc-300 text-black cursor-pointer border shadow-lg shadow-slate-500/50  "}></Button1>
+                <Button1 text={"Login"} onClick={()=>navigate("/signin")} variate={"bg-blue-500 hover:bg-blue-600 border-none cursor-pointer text-white shadow-lg shadow-cyan-500/50"} icons={<FaArrowRightLong/>}></Button1>
 
              </div>
 
