@@ -39,7 +39,7 @@ function App() {
       );
       setRoomId(room);
       setIsJoined(true);
-      setMessages([]); // Clear previous messages when switching rooms
+      setMessages([]); // it will Clear previous messages when switching rooms
     } else {
       alert("Please enter a room ID to join!");
     }
