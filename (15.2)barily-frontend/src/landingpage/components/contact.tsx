@@ -14,7 +14,7 @@ export const Contact = () => {
           <div className="flex gap-2">
             <a href="#"className="bg-gary-300 hover:text-cyan-500"> <Twitter /></a>
             <a href="#" className="bg-gary-300 hover:text-cyan-500"><Facebook /></a>
-            <a href="#" className="bg-gary-300 hover:text-cyan-500"><Instagram /></a>
+            <a href="https://www.instagram.com/__.nikhil._.___/" target="_blank"className="bg-gary-300 hover:text-cyan-500"><Instagram /></a>
 
 
           </div>
