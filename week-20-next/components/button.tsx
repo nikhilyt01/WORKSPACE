@@ -1,5 +1,5 @@
 "use client"
-import {useState} from "react";
+import {useState} from "react"; // whenever usse useeffect or useState these are CSR so use client
 
 export  function Button(){
     const [count,setCount]=useState(0);
