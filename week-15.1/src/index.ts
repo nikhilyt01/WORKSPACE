@@ -148,7 +148,7 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
     const filter =req.params.contents;
     const userId=req.userId;
 
-    console.log("filter received",filter);
+    // console.log("filter received",filter);
     const Filtermap: Record<string, string | string[] > = {
         "Youtube":"youtube",
         'Tweets': 'twitter',
@@ -163,7 +163,7 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
             return res.json({message:"invalid filter type"})
         }
         if(type){
-            console.log("mapped type is:",type)
+            //  console.log("mapped type is:",type)
             query=Array.isArray(type) ? {type : {$in:type},userId} : {type,userId}
 
 
@@ -172,7 +172,7 @@ app.get("/api/v1/content/:contents",userMiddleware,async (req:Request,res:Respon
             query ={userId}
 
         }
-        console.log("D.B query is ",query)
+        // console.log("D.B query is ",query)
 
        const content= await contentmodel.find(query)
         res.json({message:"content loaded ",content})
@@ -232,25 +232,25 @@ app.post("/api/v1/brain/share",userMiddleware,async(req:Request,res:Response):fu
 
 })
 
-app.get("/api/v1/brain/:sharelink",userMiddleware, async (req:Request,res:Response):fun =>{
+app.get("/api/v1/brain/:sharelink", async (req:Request,res:Response):fun =>{
     const hash =req.params.sharelink;
     const link= await linkmodel.findOne({
         hash
     })
     try{
     if(!link){
-        res.status(404).json({msg:"share link error"})
+        res.status(404).json({message:"share link error"})
         return;
     }
     const content = await contentmodel.find({
         userId:link.userId
-    })
+    })                                         //.populate("userId","username") can also be done as userId refs to user table
     const user= await usermodel.findOne({
         _id:link.userId
     })
-    if(!user) {
+    if(!user) {  //usually donon't happen just done to assure T.S
         res.status(411).json({
-            msg:"user not found"
+            message:"user not found"
         })
         return ;
     }
