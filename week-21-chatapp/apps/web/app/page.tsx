@@ -1,6 +1,9 @@
+"use client"
 import { TextInput } from "@repo/ui/text-input";
+import { useRouter } from "next/navigation"; 
 
 export default function Home() {
+  const Router = useRouter()
   return (
   
     <div style={{
@@ -17,7 +20,7 @@ export default function Home() {
         flexDirection:"column"
       }}>
         <TextInput size="small" placeholder="room name"></TextInput>
-        <button >join room</button>
+        <button onClick={()=>Router.push("/chat/123")} >join room</button>
       </div> 
     </div>
   );
