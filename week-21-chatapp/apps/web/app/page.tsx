@@ -1,4 +1,4 @@
-import { TextInput } from "@repo/ui/input";
+import { TextInput } from "@repo/ui/text-input";
 
 export default function Home() {
   return (
@@ -16,7 +16,7 @@ export default function Home() {
         justifyContent:"center",
         flexDirection:"column"
       }}>
-        <input type="text"></input>
+        <TextInput size="small" placeholder="room name"></TextInput>
         <button >join room</button>
       </div> 
     </div>
