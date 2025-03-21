@@ -1,4 +1,8 @@
 {
   "extends":"@repo/typescript-config/backend.json",
+  "compilerOptions":{
+    "rootDir":"./src",  // here we have overridden bcoz doing this in backend.json was creating confusion
+    "outDir":"./dist"
+  }
   
 }
