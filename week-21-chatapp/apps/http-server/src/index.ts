@@ -12,4 +12,4 @@ app.post("/chat",(req,res)=>{
     res.send("helllow world")
 })
 
-app.listen(3000);
+app.listen(3001);
