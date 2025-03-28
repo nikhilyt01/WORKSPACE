@@ -2,18 +2,21 @@
   "name": "db",
   "version": "1.0.0",
   "main": "index.js",
-  {"exports":{
-    "./client":"./src/index.ts"
-  }
-},
+  "exports": {
+    "./client": "./src/index.ts"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@repo/typescript-config":"workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "prisma": "6.5.0"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "6.5.0"
+  }
 }
