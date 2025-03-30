@@ -5,6 +5,15 @@ import { middleware } from "./middleware";
 import {CreateUserSchema,SigninSchema,CreateRoomSchema} from "@repo/common/types";
 import {prismaClient} from "@repo/db/client";
 const app = express();
+app.use(express.json());
+
+declare global {
+     namespace Express{
+          interface Request{
+               userId?: string
+          }
+     }
+}
 
 app.post("/signup",async (req,res) => {
 
@@ -16,7 +25,7 @@ app.post("/signup",async (req,res) => {
           return ;
      }
      try{
-     await prismaClient.user.create({
+     const user = await prismaClient.user.create({
           data:{
                email:parseddata.data.username,
                password:parseddata.data.password,
@@ -25,7 +34,7 @@ app.post("/signup",async (req,res) => {
           }
           
      }  )
-     res.json({message:"123"})
+     res.json({userId:user.id})
 }catch(e){
      res.status(411).json({
           message:"username already exits"
