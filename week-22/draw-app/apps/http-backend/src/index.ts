@@ -25,6 +25,7 @@ app.post("/signup",async (req,res) => {
           return ;
      }
      try{
+          //todo hash pass using bcrypt
      const user = await prismaClient.user.create({
           data:{
                email:parseddata.data.username,
@@ -43,23 +44,38 @@ app.post("/signup",async (req,res) => {
 
 })
 
-app.post("/signin",(req,res)=>{
-     const data = CreateUserSchema.safeParse(req.body);
+app.post("/signin",async (req,res)=>{
+     const data = SigninSchema.safeParse(req.body);
      if(!data.success){
          res.json({
                message : "Incorrect Inputs"
           })
           return ;
      }
+ // todo cmmr hased pass using bcrypt only
+ const user = await prismaClient.user.findFirst({
+     where:{
+          email:data.data.username,
+          password:data.data.password
+     }
+ })
 
+ if(!user){
+     res.json({
+          message:"Not Authorized !"
+     })
+     return;
+ }
      const  userId=1;
-     const token = jwt.sign({userId},JWT_SECRET)
+     const token = jwt.sign({
+          userId:user?.id
+     },JWT_SECRET)
 
      res.json({token})
 })
 
-app.post("/room",middleware,(req,res)=>{
-     const data = CreateUserSchema.safeParse(req.body);
+app.post("/room",middleware,async(req,res)=>{
+     const data = CreateRoomSchema.safeParse(req.body);
      if(!data.success){
          res.json({
                message : "Incorrect Inputs"
@@ -67,9 +83,26 @@ app.post("/room",middleware,(req,res)=>{
           return ;
      }
      //some db call
-     res.json({
-          roomId:123
+     const userId=req.userId;
+     if(!userId){  
+          return;
+     }
+try{
+     const room=await prismaClient.room.create({
+          data:{                                     //Type '{ slug: string; adminId: string | undefined; }' is not assignable to type'(Without<RoomCreateInput ...
+               slug:data.data.name,
+               adminId:userId 
+          }
      })
+
+     res.json({
+          roomId:room.id
+     })
+}catch(e){
+     res.status(411).json({
+          message:"Room alredy exists with same name"
+     })
+}
 
 })
 
