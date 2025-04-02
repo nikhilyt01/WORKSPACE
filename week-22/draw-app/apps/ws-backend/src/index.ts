@@ -4,6 +4,13 @@ import { JWT_SECRET } from "@repo/backend-common/config";
 
 const wss =new WebSocketServer({port:8080});
 
+interface User{
+    userId:string,
+    room:string[],
+    ws:WebSocket
+}
+const users:User[]=[]
+
 function checkuser(token:string):string | null {
     const decoded=jwt.verify(token,JWT_SECRET);
     if(typeof decoded=="string"){
@@ -27,9 +34,17 @@ wss.on("connection",function connection(ws,request) {
     const token = queryParams.get('token') || "";
 
     const userId=checkuser(token);
-    if(!userId){
+
+    if(userId==null){
         ws.close();
+        return null;
     }
+
+    users.push({
+        userId,
+        room:[],
+        ws
+    })
     
 
     ws.on("message",function message(data){
