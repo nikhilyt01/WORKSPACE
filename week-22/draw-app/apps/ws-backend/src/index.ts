@@ -1,4 +1,4 @@
-import { WebSocketServer } from "ws";
+import { WebSocketServer,WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 
@@ -6,7 +6,7 @@ const wss =new WebSocketServer({port:8080});
 
 interface User{
     userId:string,
-    room:string[],
+    rooms:string[],
     ws:WebSocket
 }
 const users:User[]=[]
@@ -42,13 +42,19 @@ wss.on("connection",function connection(ws,request) {
 
     users.push({
         userId,
-        room:[],
+        rooms:[],
         ws
     })
     
 
     ws.on("message",function message(data){
-        ws.send("pong");
+        const parsedData = JSON.parse(data as unknown as string); // {type:"join_room,roomId:1"}
+
+        if (parsedData.type="join_room"){
+            const user =users.find(x => x.ws === ws);  // find user in global  user array & push in its room
+            user?.rooms.push(parsedData.roomId);
+        }
+
     });
 
 });
