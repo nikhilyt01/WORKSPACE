@@ -50,9 +50,17 @@ wss.on("connection",function connection(ws,request) {
     ws.on("message",function message(data){
         const parsedData = JSON.parse(data as unknown as string); // {type:"join_room,roomId:1"}
 
-        if (parsedData.type="join_room"){
+        if (parsedData.type==="join_room"){
             const user =users.find(x => x.ws === ws);  // find user in global  user array & push in its room
             user?.rooms.push(parsedData.roomId);
+        }
+
+        if(parsedData.type==="leave_room"){
+            const user = users.find(x=> x.ws ===ws);
+            if(!user){
+                return;
+            }
+            user.rooms =user.rooms.filter(x => x===parsedData.roomId)
         }
 
     });
