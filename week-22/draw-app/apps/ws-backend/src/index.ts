@@ -13,14 +13,20 @@ const users:User[]=[]
 
 function checkuser(token:string):string | null {
     const decoded=jwt.verify(token,JWT_SECRET);
+try{
     if(typeof decoded=="string"){
-       wss.close();
        return null;
     }
+    
     if(!decoded || !decoded.userId){
         return null;
     }
-    return decoded.userId
+
+    return decoded.userId              //  { userId: usermodel ---> ka id ko encode kiya h}
+} catch(e){
+    return null;
+}
+return null;    // why?????????????????????????????????????
 
 }
 
@@ -52,6 +58,9 @@ wss.on("connection",function connection(ws,request) {
 
         if (parsedData.type==="join_room"){
             const user =users.find(x => x.ws === ws);  // find user in global  user array & push in its room
+            if(!user){
+                return;  // optional bcoz bina site pe aye msg nhi krskte  to socket
+            }
             user?.rooms.push(parsedData.roomId);
         }
 
@@ -60,7 +69,23 @@ wss.on("connection",function connection(ws,request) {
             if(!user){
                 return;
             }
-            user.rooms =user.rooms.filter(x => x===parsedData.roomId)
+            user.rooms =user.rooms.filter(x => x!==parsedData.roomId)   // current room ko leave krne ke liye
+        }
+        if(parsedData.type==="chat"){
+            const roomId=parsedData.roomId;
+            const message=parsedData.message;
+
+            users.forEach(user=>{
+                if(user.rooms.includes(roomId)){
+                    user.ws.send(JSON.stringify({
+                        type:"chat",
+                        message:message,
+                        roomId
+                    }))
+
+                }
+            })
+
         }
 
     });
