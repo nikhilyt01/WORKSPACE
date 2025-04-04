@@ -99,7 +99,7 @@ try{
           roomId:room.id
      })
 }catch(e){
-     res.status(411).json({
+     res.status(411).json({              // error hoga only when slug is deplicate bcoz we have set it to unique
           message:"Room alredy exists with same name"
      })
 }
