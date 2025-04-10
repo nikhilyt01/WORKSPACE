@@ -107,19 +107,25 @@ try{
 })
 
 app.get("/chats/:roomId",async (req,res)=>{              // to load last 50 chats of room 
-     const roomId=Number(req.params.roomId);
-     const message=await prismaClient.chat.findFirst({
-          where:{
-               roomId:roomId
-          },
-          orderBy:{
-               id:"desc"
-          },
-          take:50
-     })
-     res.json({
-          message
-     })
+     try{
+          const roomId=Number(req.params.roomId);
+          const message=await prismaClient.chat.findFirst({
+               where:{
+                    roomId:roomId
+               },
+               orderBy:{
+                    id:"desc"
+               },
+               take:50
+          })
+          res.json({
+               message
+          })
+
+     }catch(e){
+          res.json({message:[]})
+     }
+    
 })
 
 app.get("/room/:slug",async (req,res)=>{
