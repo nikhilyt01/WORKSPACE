@@ -53,12 +53,14 @@ app.post("/signin",async (req,res)=>{
           return ;
      }
  // todo cmmr hased pass using bcrypt only
+ try{
  const user = await prismaClient.user.findFirst({
      where:{
           email:data.data.username,
           password:data.data.password
      }
  })
+
 
  if(!user){
      res.json({
@@ -72,6 +74,11 @@ app.post("/signin",async (req,res)=>{
      },JWT_SECRET)
 
      res.json({token})
+
+ }catch(e){
+     res.json({message:"something went wrong either db or else"})
+ }
+
 })
 
 app.post("/room",middleware,async(req,res)=>{
