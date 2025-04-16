@@ -1,6 +1,7 @@
 "use client"
 
 import {useRef,useEffect} from "react"
+
 export default function Canvas(){
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -11,7 +12,7 @@ export default function Canvas(){
               if(!ctx){
                 return
               }
-              ctx.fillRect(25,25,100,100)
+              ctx.strokeRect(5,25,100,100)
         }
 
     },[canvasRef])
