@@ -8,6 +8,7 @@ import {
   Github,
   ArrowRight
 } from 'lucide-react';
+import Link from 'next/link';
 
 function App() {
   return (
@@ -98,9 +99,12 @@ function App() {
           <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
             Join thousands of users who are already creating beautiful diagrams with DrawFlow.
           </p>
+          {/* can also do with onclick handler & router.push*/}
+          <Link href={"/signin"}>  
           <button className="bg-white text-purple-600 px-8 py-3 rounded-lg hover:bg-purple-50 transition-colors">
             Get Started for Free
           </button>
+          </Link>
         </div>
       </section>
 
