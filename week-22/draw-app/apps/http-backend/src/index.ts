@@ -116,7 +116,7 @@ try{
 app.get("/chats/:roomId",async (req,res)=>{              // to load last 50 chats of room 
      try{
           const roomId=Number(req.params.roomId);
-          const message=await prismaClient.chat.findFirst({
+          const message=await prismaClient.chat.findMany({
                where:{
                     roomId:roomId
                },
