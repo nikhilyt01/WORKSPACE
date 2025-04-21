@@ -26,7 +26,6 @@ export  function RoomCanvas({roomId}:{roomId:string}){
     }
 
     return <div>
-               <Canvas roomId={roomId} socket={socket}/>
-               
+               <Canvas roomId={roomId} socket={socket}/>   
         </div>
 }
