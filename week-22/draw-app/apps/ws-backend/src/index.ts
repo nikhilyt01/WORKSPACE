@@ -56,7 +56,7 @@ wss.on("connection",function connection(ws,request) {
 
     ws.on("message",async function message(data){
         let parsedData;                               // bcoz sending msg as object was giving error and was not being parsed
-        if(typeof data !=="string"){
+        if(typeof data !=="string"){                    // buffer was being returned
             parsedData=JSON.parse(data.toString());
         }else{
             parsedData=JSON.parse(data);
@@ -82,10 +82,23 @@ wss.on("connection",function connection(ws,request) {
         if(parsedData.type==="chat"){
             const roomId=parsedData.roomId;
             const message=parsedData.message;
+      try{
 
+        const room = await prismaClient.room.findUnique({         //check if such room is there or not
+            where :{id:Number(roomId)}
+        })
+        if(!room){
+            console.log(`room with roomId ${roomId} not found`)
+            ws.send(JSON.stringify({
+                type:"error",
+                message:`Room with RoomId ${roomId} does not exist`
+            
+            }))
+            return ;
+        }
             await prismaClient.chat.create({
                 data:{
-                    roomId,
+                    roomId:Number(roomId),
                     message,
                     userId
                 }
@@ -97,10 +110,17 @@ wss.on("connection",function connection(ws,request) {
                         type:"chat",
                         message:message,
                         roomId
-                    }))
+                    }));
 
-                }
-            })
+                };
+            });
+        }catch(e){
+            console.error("Error handling chat ")
+            ws.send(JSON.stringify({
+                type:"error",
+                message:`something went wrong while sending message`
+            }))
+        }
 
         }
 
