@@ -5,28 +5,32 @@ import { Iconbutton } from "./IconButton";
 import { Circle, Pencil, RectangleHorizontalIcon } from "lucide-react";
 
 enum Shape {
-     rect ="RECT",
-     circle="CIRCLE",
-     pencil="PENCIL"
+     rect ="Rect",
+     circle="Circle",
+     pencil="Pencil",
+     Oval="Oval"
 
 }
 export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
-     const [selectedTool,setSelectedTool] = useState<Shape>(Shape.circle)  // used enum
+     const [selectedTool,setSelectedTool] = useState<Shape>(Shape.Oval)  // used enum
      const canvasRef = useRef<HTMLCanvasElement>(null);
+     const toolRef = useRef<Shape>(selectedTool); // it won't trigger  re-render
+     
+   
 
      useEffect(()=>{
-        if(canvasRef.current){
-             initDraw(canvasRef.current,roomId,socket)   // canvas html ke attribute ko hi pass krdiye
+        if(canvasRef.current  && socket){
+             initDraw(canvasRef.current,roomId,socket,()=>selectedTool)   // canvas html ke attribute ko hi pass krdiye
            
         }
 
-    },[canvasRef])
+    },[canvasRef,roomId])
 
     return <div style={{
                 height:"100vh",
                 overflow:"hidden",
-                background:"green"
+               
     }}> 
                <canvas ref={canvasRef} width={2000} height={1000}></canvas>
                <TopBar selectedTool={selectedTool} setSelectedTool={setSelectedTool}/> 
@@ -55,9 +59,9 @@ function TopBar({selectedTool,setSelectedTool}:{
                onClick={()=>{
                     setSelectedTool(Shape.rect)
                     }}/>
-               <Iconbutton Activated={selectedTool===Shape.circle} icon={<Circle />} 
+               <Iconbutton Activated={selectedTool===Shape.Oval} icon={<Circle />} 
                onClick={()=>{
-                    setSelectedTool(Shape.circle)
+                    setSelectedTool(Shape.Oval)
                     }}/>
            </div>
 
