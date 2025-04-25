@@ -17,11 +17,15 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
      const canvasRef = useRef<HTMLCanvasElement>(null);
      const toolRef = useRef<Shape>(selectedTool); // it won't trigger  re-render
      
-   
+     useEffect(() => {
+          toolRef.current = selectedTool; // keeps it in sync                                                                   ❌ Problem with () => selectedTool
+                                                                               //selectedTool is state. And in JavaScript, functions remember the variables that existed when they were created. So the function () => selectedTool remembers the value of selectedTool at the time initDraw() was first called.
+                                                                             //  React doesn’t update the function’s closure on state changes. So your getTool() inside initDraw was always returning the old value (i.e., the one from the first render), even if the user selected a different tool later.
+        }, [selectedTool]);
 
      useEffect(()=>{
         if(canvasRef.current  && socket){
-             initDraw(canvasRef.current,roomId,socket,()=>selectedTool)   // canvas html ke attribute ko hi pass krdiye
+             initDraw(canvasRef.current,roomId,socket,()=>toolRef.current)   // canvas html ke attribute ko hi pass krdiye
            
         }
 
