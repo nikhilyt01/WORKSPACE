@@ -2,13 +2,15 @@
 import {useRef,useEffect,useState} from "react"
 import { initDraw } from "@/draw";
 import { Iconbutton } from "./IconButton";
-import { Circle, Pencil, RectangleHorizontalIcon } from "lucide-react";
+import { Circle, Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle} from "lucide-react";
 
 enum Shape {
      rect ="Rect",
-     circle="Circle",
      pencil="Pencil",
-     Oval="Oval"
+     Oval="Oval",
+     Triangle="Triangle",
+     Eraser="Eraser",
+     Text="Text",
 
 }
 export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
@@ -66,6 +68,20 @@ function TopBar({selectedTool,setSelectedTool}:{
                <Iconbutton Activated={selectedTool===Shape.Oval} icon={<Circle />} 
                onClick={()=>{
                     setSelectedTool(Shape.Oval)
+                    }}/>
+
+                    <Iconbutton Activated={selectedTool===Shape.Text} icon={<Type/>} 
+               onClick={()=>{
+                    setSelectedTool(Shape.Text)
+                    }}/>
+
+                    <Iconbutton Activated={selectedTool===Shape.Triangle} icon={<Triangle/>} 
+               onClick={()=>{
+                    setSelectedTool(Shape.Triangle)
+                    }}/>
+                     <Iconbutton Activated={selectedTool===Shape.Eraser} icon={<Eraser/>} 
+               onClick={()=>{
+                    setSelectedTool(Shape.Eraser)
                     }}/>
            </div>
 
