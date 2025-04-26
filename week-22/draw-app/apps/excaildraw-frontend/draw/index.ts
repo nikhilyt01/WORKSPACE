@@ -24,7 +24,21 @@ type Shape ={
 }  | {
     type:"pencil";
     points:{x:number,y:number}[]
-}  
+}   | {
+    type:"triangle";
+    x1:number;
+    y1:number;
+    x2:number;
+    y2:number;
+    x3:number;
+    y3:number;
+}   |  {
+     type: "text",
+     x:number;
+     y:number;
+     text:string;
+
+}
 
 
 export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:WebSocket,getTool:()=>string){
@@ -123,7 +137,29 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
                 points:currentPoints
               }
         }
-       
+        else if(Tool==="Triangle"){
+            shape={
+                type:"triangle",
+                x1:startx,
+                y1:starty,
+                x2:e.clientX,
+                y2:e.clientY,
+                x3:startx - (e.clientX- startx),
+                y3:e.clientY
+
+            }
+
+        }
+        else if(Tool==="Text"){
+           const text= prompt("Enter your text:");
+           if(!text) return;
+            shape={
+                type:"text",
+                x:e.clientX,
+                y:e.clientY,
+                text
+            }
+        }
         else{
             return
         }
@@ -173,7 +209,15 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
         ctx.stroke();
 
       }
-    
+      else if(Tool==="Triangle"){
+          ctx.beginPath();
+          ctx.moveTo(startx, starty);
+          ctx.lineTo(e.clientX, e.clientY);
+          ctx.lineTo(startx - (e.clientX - startx), e.clientY);
+          ctx.closePath();
+          ctx.stroke();
+
+      }
        
       }
      })
@@ -203,7 +247,19 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
             }
             ctx.stroke();
           } 
-       
+        else if(shape.type ==="triangle"){
+            ctx.beginPath();
+            ctx.moveTo(shape.x1,shape.y1)
+            ctx.lineTo(shape.x2,shape.y2)
+            ctx.lineTo(shape.x3,shape.y3)
+            ctx.closePath()
+            ctx.stroke
+        }
+        else if(shape.type==="text"){
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "white";
+            ctx.fillText(shape.text, shape.x, shape.y);
+        }
     }) 
 
 }
