@@ -11,17 +11,19 @@ type Shape ={
     height:number;      
 
 } | {
-    type:"circle";
-    centerx:number;
-    centery:number;
-    radius:number;
+    type:"eraser";
+    points: {x:number,y:number}[]
+    
 }  |  {
-    type:"oval",
-    x:number,
-    y:number,
-    radiusx:number,
+    type:"oval";
+    x:number;
+    y:number;
+    radiusx:number;
     radiusy:number
 
+}  | {
+    type:"pencil";
+    points:{x:number,y:number}[]
 }  
 
 
@@ -68,7 +70,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
     console.log("Failed to init drawing:",e)
 }
 
-    
+    let currentPoints:{x:number,y:number}[]=[];
       let clicked=false;
       let startx=0;
       let starty=0;
@@ -77,6 +79,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
       clicked=true;
       startx= e.clientX
       starty=e.clientY
+      currentPoints=[{x:e.clientX,y:e.clientY}]
      })
 
      canvas.addEventListener("mouseup",(e)=>{
@@ -108,6 +111,19 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
                 radiusy,
             };
         }
+        else if(Tool === "Pencil"){
+              shape={
+                type:"pencil",
+                points:currentPoints
+              }
+        }
+        else if(Tool==="Eraser"){
+             shape={
+                type:"pencil",
+                points:currentPoints
+              }
+        }
+       
         else{
             return
         }
@@ -129,7 +145,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
        console.log(getTool())
        clearCanvas(existingShapes,canvas,ctx);    // it clears and renders shapes
 
-       ctx.strokeStyle="rgba(255,255,255)"         // for current drawing that we drag
+       ctx.strokeStyle=Tool==="Eraser" ? "Black"   : "white"     // for current drawing that we drag
        if(Tool==="Rect"){
            ctx.strokeRect(startx,starty,width,height);
 
@@ -147,7 +163,17 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
         );
         ctx.stroke();
       }
-       
+      else if(Tool==="Pencil"|| Tool==="Eraser"){
+        currentPoints.push({ x: e.clientX, y: e.clientY });
+        ctx.beginPath();
+        for (let i = 0; i < currentPoints.length - 1; i++) {
+          ctx.moveTo(currentPoints[i].x, currentPoints[i].y);
+          ctx.lineTo(currentPoints[i + 1].x, currentPoints[i + 1].y);
+        }
+        ctx.stroke();
+
+      }
+    
        
       }
      })
@@ -160,16 +186,24 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
     ctx.fillRect(0,0,canvas.width,canvas.height)
 
     existingShapes.map((shape)=>{
+        ctx.strokeStyle = shape.type === "eraser" ? "black" : "white";
         if(shape.type==="rect"){
-            ctx.strokeStyle="rgba(255,255,255)"
             ctx.strokeRect(shape.x,shape.y,shape.width,shape.height)
         }
-        if(shape.type==="oval"){
+        else if(shape.type==="oval"){
             ctx.beginPath();
             ctx.ellipse(shape.x, shape.y, shape.radiusx, shape.radiusy, 0, 0, Math.PI * 2);
-            ctx.strokeStyle = "white";
             ctx.stroke();
         }
+        else if (shape.type === "pencil" || shape.type === "eraser") {
+            ctx.beginPath();
+            for (let i = 0; i < shape.points.length - 1; i++) {
+              ctx.moveTo(shape.points[i].x, shape.points[i].y);
+              ctx.lineTo(shape.points[i + 1].x, shape.points[i + 1].y);
+            }
+            ctx.stroke();
+          } 
+       
     }) 
 
 }
