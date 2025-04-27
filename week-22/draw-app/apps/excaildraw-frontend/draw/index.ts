@@ -131,12 +131,12 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
                 points:currentPoints
               }
         }
-        else if(Tool==="Eraser"){
-             shape={
-                type:"pencil",
-                points:currentPoints
-              }
-        }
+        // else if(Tool==="Eraser"){
+        //      shape={
+        //         type:"pencil",
+        //         points:currentPoints
+        //       }
+        // }
         else if(Tool==="Triangle"){
             shape={
                 type:"triangle",
@@ -150,16 +150,16 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
             }
 
         }
-        else if(Tool==="Text"){
-           const text= prompt("Enter your text:");
-           if(!text) return;
-            shape={
-                type:"text",
-                x:e.clientX,
-                y:e.clientY,
-                text
-            }
-        }
+        // else if(Tool==="Text"){
+        //    const text= prompt("Enter your text:");
+        //    if(!text) return;
+        //     shape={
+        //         type:"text",
+        //         x:e.clientX,
+        //         y:e.clientY,
+        //         text
+        //     }
+        // }
         else{
             return
         }
@@ -199,7 +199,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
         );
         ctx.stroke();
       }
-      else if(Tool==="Pencil"|| Tool==="Eraser"){
+      else if(Tool==="Pencil"){    //|| Tool==="Eraser"
         currentPoints.push({ x: e.clientX, y: e.clientY });
         ctx.beginPath();
         for (let i = 0; i < currentPoints.length - 1; i++) {
@@ -239,7 +239,7 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
             ctx.ellipse(shape.x, shape.y, shape.radiusx, shape.radiusy, 0, 0, Math.PI * 2);
             ctx.stroke();
         }
-        else if (shape.type === "pencil" || shape.type === "eraser") {
+        else if (shape.type === "pencil" ) {   //|| shape.type === "eraser"
             ctx.beginPath();
             for (let i = 0; i < shape.points.length - 1; i++) {
               ctx.moveTo(shape.points[i].x, shape.points[i].y);
@@ -253,13 +253,13 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
             ctx.lineTo(shape.x2,shape.y2)
             ctx.lineTo(shape.x3,shape.y3)
             ctx.closePath()
-            ctx.stroke
+            ctx.stroke();
         }
-        else if(shape.type==="text"){
-            ctx.font = "20px Arial";
-            ctx.fillStyle = "white";
-            ctx.fillText(shape.text, shape.x, shape.y);
-        }
+        // else if(shape.type==="text"){
+        //     ctx.font = "20px Arial";
+        //     ctx.fillStyle = "white";
+        //     ctx.fillText(shape.text, shape.x, shape.y);
+        // }
     }) 
 
 }
