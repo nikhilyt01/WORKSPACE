@@ -41,7 +41,7 @@ type Shape ={
 }
 
 
-export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:WebSocket,getTool:()=>string){
+export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:WebSocket,getTool:()=>string,getStroke:()=>string,getColor:()=>Number){
     const ctx = canvas.getContext("2d");
     if(!ctx){
         toast.error("Failed to get canvas context")

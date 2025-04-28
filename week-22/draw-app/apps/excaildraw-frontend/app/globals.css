@@ -1,24 +1,2 @@
 @import "tailwindcss";
 
-/* Global CSS or in your component */
-.toast-with-close-button {
-    position: relative;
-    padding-right: 40px; /* Space for the close button */
-  }
-  
-  /* Style the close button */
-  .toast-with-close-button button[aria-label="Close"] {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    color: white;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  /* Hover effect */
-  .toast-with-close-button button[aria-label="Close"]:hover {
-    opacity: 0.8;
-  }
