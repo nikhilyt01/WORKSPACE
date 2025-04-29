@@ -24,6 +24,10 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
      const colorRef = useRef("#ffffff");
 
      useEffect(()=>{
+          thicknessRef.current=thickness     //state or ref isliye ki frontend me show krne ke liye state and ref taki pass krskte 
+     },[thickness])
+
+     useEffect(()=>{
           colorRef.current=color
      },[color])
 
@@ -39,8 +43,8 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
                canvasRef.current,   // canvas html ke attribute ko hi pass krdiye
                roomId,socket,
                ()=>toolRef.current,
+               ()=>thicknessRef.current,
                ()=>colorRef.current,
-               ()=>thicknessRef.current
 
           )   
            
