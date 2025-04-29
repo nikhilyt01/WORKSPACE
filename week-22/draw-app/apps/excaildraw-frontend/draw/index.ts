@@ -8,22 +8,29 @@ type Shape ={
     x:number;
     y:number;
     width:number;
-    height:number;      
+    height:number;   
+    strokeColor:string;
+    strokeWidth:number;   
 
 } | {
     type:"eraser";
-    points: {x:number,y:number}[]
+    points: {x:number,y:number}[];
+    strokeWidth:number;
     
 }  |  {
     type:"oval";
     x:number;
     y:number;
     radiusx:number;
-    radiusy:number
+    radiusy:number;
+    strokeColor:string;
+    strokeWidth:number;
 
 }  | {
     type:"pencil";
-    points:{x:number,y:number}[]
+    points:{x:number,y:number}[];
+    strokeColor:string;
+    strokeWidth:number;
 }   | {
     type:"triangle";
     x1:number;
@@ -32,16 +39,19 @@ type Shape ={
     y2:number;
     x3:number;
     y3:number;
+    strokeColor:string;
+    strokeWidth:number;
 }   |  {
      type: "text",
      x:number;
      y:number;
      text:string;
+     strokeColor:string;
 
 }
 
 
-export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:WebSocket,getTool:()=>string,getStroke:()=>string,getColor:()=>Number){
+export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:WebSocket,getTool:()=>string,getStroke:()=>number,getColor:()=>string){
     const ctx = canvas.getContext("2d");
     if(!ctx){
         toast.error("Failed to get canvas context")
@@ -103,6 +113,8 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
 
       let shape:Shape | null=null;
       const Tool = getTool();  //it is function that retur string which is passed
+      const thickness =getStroke();  // function that return thickness no.
+      const color = getColor()
       console.log(getTool())
       if (Tool === "Rect") {
         shape = {
@@ -111,6 +123,8 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
             y: starty,
             width,
             height,
+            strokeColor:color,
+            strokeWidth:thickness
         };
     }
        
@@ -123,20 +137,25 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
                 y: (starty + e.clientY) / 2,
                 radiusx,
                 radiusy,
+                strokeColor:color,
+                strokeWidth:thickness
             };
         }
         else if(Tool === "Pencil"){
               shape={
                 type:"pencil",
-                points:currentPoints
+                points:currentPoints,
+                strokeColor:color,
+                strokeWidth:thickness
               }
         }
-        // else if(Tool==="Eraser"){
-        //      shape={
-        //         type:"pencil",
-        //         points:currentPoints
-        //       }
-        // }
+        else if(Tool==="Eraser"){
+             shape={
+                type:"eraser",
+                points:currentPoints,
+                strokeWidth:thickness
+              }
+        }
         else if(Tool==="Triangle"){
             shape={
                 type:"triangle",
@@ -145,7 +164,9 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
                 x2:e.clientX,
                 y2:e.clientY,
                 x3:startx - (e.clientX- startx),
-                y3:e.clientY
+                y3:e.clientY,
+                strokeColor:color,
+                strokeWidth:thickness
 
             }
 
@@ -177,11 +198,12 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
       if(clicked){
        const width = e.clientX - startx;
        const height = e.clientY - starty;
-       const Tool=getTool()
-       console.log(getTool())
+       const Tool=getTool();
+       const thickness= getStroke();
+       const color = getColor();
        clearCanvas(existingShapes,canvas,ctx);    // it clears and renders shapes
 
-       ctx.strokeStyle=Tool==="Eraser" ? "Black"   : "white"     // for current drawing that we drag
+       ctx.strokeStyle = Tool === "Eraser" ? "rgba(0,0,0,1)" : "white";    // for current drawing that we drag
        if(Tool==="Rect"){
            ctx.strokeRect(startx,starty,width,height);
 
@@ -199,9 +221,12 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
         );
         ctx.stroke();
       }
-      else if(Tool==="Pencil"){    //|| Tool==="Eraser"
+      else if(Tool==="Pencil" || Tool==="Eraser"){    //|| Tool==="Eraser"
         currentPoints.push({ x: e.clientX, y: e.clientY });
         ctx.beginPath();
+        ctx.lineCap="round";
+        ctx.lineJoin="round";
+        ctx.lineWidth=thickness;
         for (let i = 0; i < currentPoints.length - 1; i++) {
           ctx.moveTo(currentPoints[i].x, currentPoints[i].y);
           ctx.lineTo(currentPoints[i + 1].x, currentPoints[i + 1].y);
@@ -239,8 +264,11 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
             ctx.ellipse(shape.x, shape.y, shape.radiusx, shape.radiusy, 0, 0, Math.PI * 2);
             ctx.stroke();
         }
-        else if (shape.type === "pencil" ) {   //|| shape.type === "eraser"
+        else if (shape.type === "pencil"|| shape.type === "eraser" ) {   //|| shape.type === "eraser"
             ctx.beginPath();
+            ctx.lineCap="round";
+            ctx.lineJoin="round";
+            ctx.lineWidth=shape.strokeWidth;
             for (let i = 0; i < shape.points.length - 1; i++) {
               ctx.moveTo(shape.points[i].x, shape.points[i].y);
               ctx.lineTo(shape.points[i + 1].x, shape.points[i + 1].y);
