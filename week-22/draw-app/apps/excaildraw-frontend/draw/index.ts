@@ -203,7 +203,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
        const color = getColor();
        clearCanvas(existingShapes,canvas,ctx);    // it clears and renders shapes
 
-       ctx.strokeStyle = Tool === "Eraser" ? "rgba(0,0,0,1)" : "white";    // for current drawing that we drag
+       ctx.strokeStyle = Tool === "Eraser" ? "rgba(0,0,0,1)" : color;    // for current drawing that we drag
        if(Tool==="Rect"){
            ctx.strokeRect(startx,starty,width,height);
 
@@ -255,7 +255,7 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
     ctx.fillRect(0,0,canvas.width,canvas.height)
 
     existingShapes.map((shape)=>{
-        ctx.strokeStyle = shape.type === "eraser" ? "black" : "white";
+        ctx.strokeStyle = shape.type === "eraser" ? "black" : shape.strokeColor;
         if(shape.type==="rect"){
             ctx.strokeRect(shape.x,shape.y,shape.width,shape.height)
         }
