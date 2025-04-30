@@ -10,13 +10,14 @@ export  function RoomCanvas({roomId}:{roomId:string}){
     const [socket,setSocket] = useState<WebSocket |null>(null);
     const [connectionStatus, setConnectionStatus] = useState("connecting");
     const socketRef = useRef<WebSocket | null>(null);
+    const token = localStorage.getItem("token")
 
     useEffect(() => {
         if (socketRef.current) {
             socketRef.current.close();
             toast.dismiss('connection-toast'); // Clear previous toasts
-          }
-        const ws = new WebSocket(`${WS_URL}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NjY1MWQwOS01ZWI2LTQ4NzItOGM5OC1hYWRlNjhlNmZkZDEiLCJpYXQiOjE3NDQ5OTk1NzV9.3PSgC1eOfKSlsVks5jRjx4Ru4Jsn81umletgNlSwL80`);
+          }  //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NjY1MWQwOS01ZWI2LTQ4NzItOGM5OC1hYWRlNjhlNmZkZDEiLCJpYXQiOjE3NDQ5OTk1NzV9.3PSgC1eOfKSlsVks5jRjx4Ru4Jsn81umletgNlSwL80
+        const ws = new WebSocket(`${WS_URL}?token=${token}`);
 
         ws.onopen =() =>{
             setSocket(ws);
