@@ -104,6 +104,9 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
       startx= e.clientX
       starty=e.clientY
       currentPoints=[{x:e.clientX,y:e.clientY}]
+      if(getTool()==="Eraser"){
+        canvas.classList.add("eraser-cursor")
+      }
      })
 
      canvas.addEventListener("mouseup",(e)=>{
@@ -192,6 +195,9 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
         message:JSON.stringify({shape}),     // it will be send as shape = [{}]  so we have to do .shape
         roomId
       }))
+       
+      canvas.classList.remove("eraser-cursor")
+
      })
 
      canvas.addEventListener("mousemove",(e)=>{
@@ -205,11 +211,13 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
 
        ctx.strokeStyle = Tool === "Eraser" ? "rgba(0,0,0,1)" : color;    // for current drawing that we drag
        if(Tool==="Rect"){
+           ctx.lineWidth=thickness;
            ctx.strokeRect(startx,starty,width,height);
 
        }
        if (Tool === "Oval") {
         ctx.beginPath();
+        ctx.lineWidth=thickness;
         ctx.ellipse(
           (startx + e.clientX) / 2,
           (starty + e.clientY) / 2,
@@ -236,6 +244,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
       }
       else if(Tool==="Triangle"){
           ctx.beginPath();
+          ctx.lineWidth=thickness;
           ctx.moveTo(startx, starty);
           ctx.lineTo(e.clientX, e.clientY);
           ctx.lineTo(startx - (e.clientX - startx), e.clientY);
@@ -257,10 +266,12 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
     existingShapes.map((shape)=>{
         ctx.strokeStyle = shape.type === "eraser" ? "black" : shape.strokeColor;
         if(shape.type==="rect"){
+            ctx.lineWidth=shape.strokeWidth;
             ctx.strokeRect(shape.x,shape.y,shape.width,shape.height)
         }
         else if(shape.type==="oval"){
             ctx.beginPath();
+            ctx.lineWidth=shape.strokeWidth;
             ctx.ellipse(shape.x, shape.y, shape.radiusx, shape.radiusy, 0, 0, Math.PI * 2);
             ctx.stroke();
         }
@@ -277,6 +288,7 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
           } 
         else if(shape.type ==="triangle"){
             ctx.beginPath();
+            ctx.lineWidth=shape.strokeWidth;
             ctx.moveTo(shape.x1,shape.y1)
             ctx.lineTo(shape.x2,shape.y2)
             ctx.lineTo(shape.x3,shape.y3)
@@ -302,3 +314,4 @@ async function getExistingShapes(roomId:string){
     })
     return shapes;
 } 
+
