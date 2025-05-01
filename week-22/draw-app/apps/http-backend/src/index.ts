@@ -5,6 +5,8 @@ import { middleware } from "./middleware";
 import {CreateUserSchema,SigninSchema,CreateRoomSchema} from "@repo/common/types";
 import {prismaClient} from "@repo/db/client";
 import cors from "cors";
+import { Request,Response,NextFunction } from "express";
+
 const app = express();
 app.use(express.json());
 app.use(cors())
@@ -105,7 +107,8 @@ try{
      })
 
      res.json({
-          roomId:room.id
+          message:"Room created successfully",
+          room:room                          // whole room details to show on frontend
      })
 }catch(e){
      res.status(411).json({              // error hoga only when slug is deplicate bcoz we have set it to unique
@@ -114,6 +117,37 @@ try{
 }
 
 })
+
+app.delete("/room/:id",middleware,async(req:Request,res:Response):Promise<void> =>{
+     const id=Number(req.params.id);
+     const userId=req.userId;
+     try{
+          const room= await prismaClient.room.findUnique({
+               where:{id:id},
+          });
+          if(!room){
+                res.status(404).json({message:"Room not Found"});
+                return;
+          }
+
+          if(room.adminId !== userId){   // agar user admin nhi h room ka
+                res.json({message:"UnAuthorized"})
+          }
+
+          await prismaClient.room.delete({
+               where:{id:id},
+          })
+          res.status(200).json({message:"Room Deleted"});
+
+     }catch(e){
+          console.error("Error deleting room:", e);
+          res.status(500).json({ message: "Internal server error" });
+     }
+     
+     
+
+})
+
 
 app.get("/chats/:roomId",async (req,res)=>{              // to load last 50 chats of room 
      try{
