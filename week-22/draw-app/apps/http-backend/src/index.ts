@@ -148,6 +148,27 @@ app.delete("/room/:id",middleware,async(req:Request,res:Response):Promise<void> 
 
 })
 
+app.get("/user",middleware,async(req:Request,res:Response):Promise<void> =>{   // endpoint to Fetch user's all Room
+     const userid=req.userId;
+try{
+     const room= await prismaClient.room.findMany({
+          where:{adminId:userid},
+          orderBy:{
+               createdat:"desc"
+          }
+     })
+     if(!room){
+          res.json({message:"No Rooms Found"})
+     }
+     res.status(200).json({room})
+}catch(e){
+     console.error("Error fetching rooms:", e);
+    res.status(500).json({ message: "Internal server error" });
+
+}
+
+})
+
 
 app.get("/chats/:roomId",async (req,res)=>{              // to load last 50 chats of room 
      try{
