@@ -125,7 +125,7 @@ app.get("/chats/:roomId",async (req,res)=>{              // to load last 50 chat
                orderBy:{
                     id:"desc"
                },
-               take:50
+               take:100
           })
           res.json({
                message
