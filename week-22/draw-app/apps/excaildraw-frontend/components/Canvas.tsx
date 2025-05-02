@@ -16,6 +16,15 @@ enum Shape {
      Line="Line"
 
 }
+const basicColors = [
+     "#ffffff",
+     "#ff4d4d",
+     "#4dff4d",
+     "#4d9fff",
+     "#ffeb3b",
+    // "#ff66ff",
+     //"#00e5ff",
+   ];
 export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
      const router=useRouter()
@@ -69,7 +78,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
                             id="thickness"
                             type="range"
                             min="1"
-                            max={selectedTool !== "Arrow" ? "20" :6}
+                            max={selectedTool !== "Arrow" ? "20" :"6"}
                             defaultValue={2}
                             onChange={(e)=>setThickness(Number(e.target.value))}
                             className="w-full"
@@ -89,6 +98,19 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
                                  onChange={(e)=>setColor(e.target.value)}
                                  className="w-full h-10  "
                               />
+                              <div>
+                                   <p className="text-sm text-white mb-1">Basic Colors:</p>
+                                   <div className="flex space-x-2">
+                                        {basicColors.map((c)=>(
+                                             <button key={c} 
+                                              onClick={()=>setColor(c)} 
+                                              style={{background:c}}
+                                              className={`w-6 h-6 rounded-full border border-gray-600 hover:scale-105 active:scale-95
+                                                  ${color.toLowerCase()===c.toLowerCase()?  "ring-2 ring-indigo-600":""  }`}/>
+                                        ) )}
+
+                                   </div>
+                              </div>
 
                          </div>
                     )}
