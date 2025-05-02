@@ -2,7 +2,8 @@
 import {useRef,useEffect,useState} from "react"
 import { initDraw } from "@/draw";
 import { Iconbutton } from "./IconButton";
-import { Circle, Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter} from "lucide-react";
+import { Circle, Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter,LogOut,MoveRight, Minus, Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 enum Shape {
      rect ="Rect",
@@ -11,9 +12,13 @@ enum Shape {
      Triangle="Triangle",
      Eraser="Eraser",
      Text="Text",
+     Arrow="Arrow",
+     Line="Line"
 
 }
 export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
+
+     const router=useRouter()
 
      const [selectedTool,setSelectedTool] = useState<Shape>(Shape.Oval)  // used enum
      const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,7 +69,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
                             id="thickness"
                             type="range"
                             min="1"
-                            max="20"
+                            max={selectedTool !== "Arrow" ? "20" :6}
                             defaultValue={2}
                             onChange={(e)=>setThickness(Number(e.target.value))}
                             className="w-full"
@@ -90,9 +95,21 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
                </div>
                {/* TopBar for tools */}
-               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 px-6 py-2 rounded-full flex items-center gap-4 shadow-lg">
+          
+               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 px-6 py-2 rounded-full flex items-center border border-blue-900 gap-4 shadow-lg">
                    <TopBar selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
                </div>
+               <div className="absolute top-4 right-6">
+  <button
+    onClick={() => {
+      router.push("/Dashboard");
+    }}
+    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+  >
+    Logout
+  </button>
+</div>
+
                {/* Main canvas */}
                <canvas ref={canvasRef} width={2000} height={1000} className="bg-black"></canvas>
                {/* <TopBar selectedTool={selectedTool} setSelectedTool={setSelectedTool}/> 
@@ -141,6 +158,11 @@ function TopBar({selectedTool,setSelectedTool}:{
                onClick={()=>{
                     setSelectedTool(Shape.Eraser)
                     }}/>
+                    <Iconbutton Activated={selectedTool===Shape.Arrow} icon={<MoveRight/>}  
+               onClick={()=>setSelectedTool(Shape.Arrow)}/>
+                    <Iconbutton  Activated={selectedTool===Shape.Line} icon={<Minus/>}
+               onClick={()=> setSelectedTool(Shape.Line)} />
+
            </div>
 
 
