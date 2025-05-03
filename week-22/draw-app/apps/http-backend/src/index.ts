@@ -74,7 +74,7 @@ app.post("/signin",async (req,res)=>{
  }
      const  userId=1;
      const token = jwt.sign({
-          userId:user?.id
+          userId:user?.id,
      },JWT_SECRET)
 
      res.json({token})
@@ -204,5 +204,47 @@ app.get("/room/:slug",async (req,res)=>{
      })
 })
 
+// app.get("/room/:id", async (req: Request, res: Response) => {       this was not working probaably due to prisma schema 
+//      const id = Number(req.params.id);
+//      console.log("Requested room ID:", id);
+   
+//      try {
+//        const roomexists = await prismaClient.room.findUnique({
+//          where: { id },
+//        });
+   
+//        if (!roomexists) {
+//          console.log("No room found with ID", id);
+//        } else {
+//          console.log("Room found:", roomexists);
+//        }
+   
+//        res.status(200).json({ room: roomexists });
+//      } catch (e) {
+//        console.error("Error validating room", e);
+//        res.status(500).json({ message: "Failed to validate room" });
+//      }
+//    });
+   
+    app.get("/test-room/:id",middleware,async (req, res) => {
+       const userId=req.userId;
+   try{
+       if(isNaN(Number(req.params.id)) || !userId ){
+          res.status(404).json({message:"Invalid roomId or failed to authenticate"});
+          return;
+       }
+
+     const room = await prismaClient.$queryRaw`
+       SELECT * FROM "Room" WHERE id = ${Number(req.params.id)}
+      AND "adminId"=${userId}`;
+      if(!room){
+          res.status(404).json({error:"Room Not Found"})
+      }
+      res.status(200).json({room});
+     }catch(e){
+          res.status(500).json({error:"Internal D.B error!"})
+     }
+   });
+   
+
 app.listen(3001);
- 
