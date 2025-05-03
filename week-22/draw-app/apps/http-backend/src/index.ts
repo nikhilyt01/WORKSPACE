@@ -204,27 +204,27 @@ app.get("/room/:slug",async (req,res)=>{
      })
 })
 
-// app.get("/room/:id", async (req: Request, res: Response) => {       this was not working probaably due to prisma schema 
-//      const id = Number(req.params.id);
-//      console.log("Requested room ID:", id);
+app.get("/rooms/:id", async (req: Request, res: Response) => {     //  this was not working probaably due to prisma schema 
+     const id = Number(req.params.id);
+     console.log("Requested room ID:", id);
    
-//      try {
-//        const roomexists = await prismaClient.room.findUnique({
-//          where: { id },
-//        });
+     try {
+       const roomexists = await prismaClient.room.findUnique({
+         where: { id },
+       });
    
-//        if (!roomexists) {
-//          console.log("No room found with ID", id);
-//        } else {
-//          console.log("Room found:", roomexists);
-//        }
+       if (!roomexists) {
+         console.log("No room found with ID", id);
+       } else {
+         console.log("Room found:", roomexists);
+       }
    
-//        res.status(200).json({ room: roomexists });
-//      } catch (e) {
-//        console.error("Error validating room", e);
-//        res.status(500).json({ message: "Failed to validate room" });
-//      }
-//    });
+       res.status(200).json({ room: roomexists });
+     } catch (e) {
+       console.error("Error validating room", e);
+       res.status(500).json({ message: "Failed to validate room" });
+     }
+   });
    
     app.get("/test-room/:id",middleware,async (req, res) => {
        const userId=req.userId;
