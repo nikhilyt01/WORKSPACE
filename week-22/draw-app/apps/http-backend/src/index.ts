@@ -204,7 +204,7 @@ app.get("/room/:slug",async (req,res)=>{
      })
 })
 
-app.get("/rooms/:id", async (req: Request, res: Response) => {     //  this was not working probaably due to prisma schema 
+app.get("/rooms/:id",middleware, async (req: Request, res: Response) => {     //  this was not working probaably due to prisma schema 
      const id = Number(req.params.id);
      console.log("Requested room ID:", id);
    
