@@ -75,7 +75,7 @@ app.post("/signin",async (req,res)=>{
      const  userId=1;
      const token = jwt.sign({
           userId:user?.id,
-     },JWT_SECRET)
+     },JWT_SECRET,{ expiresIn: '8h' })
 
      res.json({token})
 
