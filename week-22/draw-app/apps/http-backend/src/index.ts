@@ -254,6 +254,23 @@ app.get("/test-room/:id",middleware,async (req, res) => {
           res.status(500).json({error:"Internal D.B error!"})
      }
    });
+
+app.delete("/delchats/:roomId",middleware,async(req,res)=>{
+     const roomId=Number(req.params.roomId);
+     const userId=req.userId;
+
+     try{
+         const clear= await prismaClient.chat.deleteMany({
+          where:{
+               roomId,
+               userId
+          }
+         })
+         res.json({message:"Cleared all "})
+     }catch{
+           res.status(400).json({message:"failed to clear"})
+     }
+})
    
 
 app.listen(3001);
