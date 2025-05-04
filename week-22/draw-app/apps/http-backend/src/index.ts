@@ -6,6 +6,7 @@ import {CreateUserSchema,SigninSchema,CreateRoomSchema} from "@repo/common/types
 import {prismaClient} from "@repo/db/client";
 import cors from "cors";
 import { Request,Response,NextFunction } from "express";
+import bcrypt from "bcrypt"
 
 const app = express();
 app.use(express.json());
@@ -30,10 +31,11 @@ app.post("/signup",async (req,res) => {
      }
      try{
           //todo hash pass using bcrypt
+             const hashedPass=await bcrypt.hash(parseddata.data.password,5);
      const user = await prismaClient.user.create({
           data:{
                email:parseddata.data.username,
-               password:parseddata.data.password,
+               password:hashedPass,
                name:parseddata.data.name
 
           }
@@ -52,27 +54,34 @@ app.post("/signin",async (req,res)=>{
      const data = SigninSchema.safeParse(req.body);
      if(!data.success){
          res.json({
-               message : "Incorrect Inputs"
+               message : "Incorrect Inputs",
+               error:data.error.errors
           })
           return ;
      }
+
  // todo cmmr hased pass using bcrypt only
  try{
  const user = await prismaClient.user.findFirst({
      where:{
-          email:data.data.username,
-          password:data.data.password
+          email:data.data.username
+          //password:data.data.password
      }
  })
 
 
  if(!user){
      res.json({
-          message:"Not Authorized !"
+          message:"Plzz Signup First"
      })
      return;
  }
-     const  userId=1;
+ const ismatch= await bcrypt.compare(data.data.password,user.password!);
+ if(!ismatch){
+     res.status(401).json({message:"Wrong credential"})
+     return;
+ }
+     // this part is for if user exists
      const token = jwt.sign({
           userId:user?.id,
      },JWT_SECRET,{ expiresIn: '8h' })
@@ -206,35 +215,35 @@ app.get("/room/:slug",async (req,res)=>{
 
 app.get("/rooms/:id",middleware, async (req: Request, res: Response) => {     //  this was not working probaably due to prisma schema 
      const id = Number(req.params.id);
-     console.log("Requested room ID:", id);
+     const userId=req.userId;
    
      try {
        const roomexists = await prismaClient.room.findUnique({
-         where: { id },
+         where: { id,adminId:userId },
        });
    
        if (!roomexists) {
-         console.log("No room found with ID", id);
+        // console.log("No room found with ID", id);
        } else {
-         console.log("Room found:", roomexists);
+        // console.log("Room found:", roomexists);
        }
    
-       res.status(200).json({ room: roomexists });
+       res.status(200).json({ room: roomexists });  // it will either return room:null ya fir room:details  we require null also
      } catch (e) {
        console.error("Error validating room", e);
        res.status(500).json({ message: "Failed to validate room" });
      }
    });
    
-    app.get("/test-room/:id",middleware,async (req, res) => {
+app.get("/test-room/:id",middleware,async (req, res) => {
        const userId=req.userId;
    try{
        if(isNaN(Number(req.params.id)) || !userId ){
           res.status(404).json({message:"Invalid roomId or failed to authenticate"});
           return;
        }
-
-     const room = await prismaClient.$queryRaw`
+                                                              // raw query return [] even if not found so it was messing things up
+     const room = await prismaClient.$queryRaw`                 
        SELECT * FROM "Room" WHERE id = ${Number(req.params.id)}
       AND "adminId"=${userId}`;
       if(!room){
