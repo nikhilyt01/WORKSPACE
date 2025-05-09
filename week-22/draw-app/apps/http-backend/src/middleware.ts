@@ -9,7 +9,7 @@ export function  middleware(req:Request,res:Response,next:NextFunction){
         return; 
     }
    
-    try{           //type safety
+    try{           //error handling
     const decoded:string|JwtPayload = jwt.verify(token ,JWT_SECRET);
 
     if(decoded){
