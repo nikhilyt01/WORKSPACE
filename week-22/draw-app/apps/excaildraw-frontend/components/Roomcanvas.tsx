@@ -1,22 +1,44 @@
 "use client"
 import {useRef,useEffect,useState} from "react"
 import { initDraw } from "@/draw";
-import { WS_URL } from "@/config";
+import { http_backend, WS_URL } from "@/config";
 import { Canvas } from "./Canvas";
 import {toast} from "react-hot-toast";
 import { Socket } from "dgram";
+import axios from "axios";
+import axiosWithAuth from "./axioswithAuth";
+import { UnAuth } from "./unAuthpage";
+import { Errorpage } from "./roomNotFound";
 
 export  function RoomCanvas({roomId}:{roomId:string}){
     const [socket,setSocket] = useState<WebSocket |null>(null);
     const [connectionStatus, setConnectionStatus] = useState("connecting");
     const socketRef = useRef<WebSocket | null>(null);
-    const token = localStorage.getItem("token")
-
+    const [authstatus,setAuthstatus]=useState<"unAuth"| "valid" | "loading" |"notFound">("loading");
+    const api =axiosWithAuth()
+   
     useEffect(() => {
+      const validateandConnect = async() =>{
+        const token = typeof window!= "undefined"? localStorage.getItem("token") : "";
+        if(!token){
+            setAuthstatus("unAuth");
+            return;
+        }
+   try{
+        // room validate
+        const res= await api.get(`/rooms/${roomId}`)    // get only takes 2 Inp so used custom axios
+        if(!res.data?.room){
+            setAuthstatus("notFound");
+            return;
+        }
+        
+        setAuthstatus("valid");
+
         if (socketRef.current) {
             socketRef.current.close();
             toast.dismiss('connection-toast'); // Clear previous toasts
           }  //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NjY1MWQwOS01ZWI2LTQ4NzItOGM5OC1hYWRlNjhlNmZkZDEiLCJpYXQiOjE3NDQ5OTk1NzV9.3PSgC1eOfKSlsVks5jRjx4Ru4Jsn81umletgNlSwL80
+
         const ws = new WebSocket(`${WS_URL}?token=${token}`);
 
         ws.onopen =() =>{
@@ -37,18 +59,27 @@ export  function RoomCanvas({roomId}:{roomId:string}){
         ws.onclose=()=>{
             toast.error("Disconnected from server")
         }
-
+    }catch(e){
+        console.log("error validating room",e);
+        setAuthstatus("unAuth")
+    }
+    }
+  
+    validateandConnect();
        
     return () =>{
-        if(ws.readyState===WebSocket.OPEN){
-            ws.close();
+        if(socketRef.current?.readyState===WebSocket.OPEN){
+            socketRef.current.close();
             socketRef.current = null;
         }
     }
         
     },[roomId])
 
-    if(!socket){
+    if(authstatus==="unAuth") return <UnAuth/>
+    if(authstatus==="notFound") return <Errorpage/>
+
+    if(!socket || authstatus==="loading"){
          return (
                 <div className="flex items-center justify-center h-screen">
                     <div className="text-center">
