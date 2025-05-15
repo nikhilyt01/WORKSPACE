@@ -7,7 +7,7 @@ export function Iconbutton({
     icon:ReactNode,
     onClick:()=> void,
     Activated:boolean
-    }) {
+    }) {// just to update
         return <div className={`p-2 rounded-full cursor-pointer border bg-black hover:bg-gray 
             ${Activated ? "text-red-400":"text-white"}`}
         onClick={onClick}>
