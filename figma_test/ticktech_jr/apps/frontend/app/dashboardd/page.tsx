@@ -14,8 +14,8 @@ export default function Dashboard(){
                 <FormContainer/>
             </div>
             <footer >
-                <div className="text-center h-64 bg-blue-600">
-                    footer
+                <div className="text-center h-64 bg-blue-600 ">
+                   <p className="text-center pt-32">@2025,TickTech_Jr.All Rights Reserved</p> 
                 </div>
 
             </footer>
