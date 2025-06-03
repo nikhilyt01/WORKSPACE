@@ -184,7 +184,7 @@ function FormContainer(){
             <div className="flex flex-col">
                 <label className="text-gray-700 block mb-1 ml-2">Profile Pic</label>
                     <div className="bg-gray-100 border border-gray-300 rounded-full h-20 w-20"></div>
-                    <div className="ml-4 mt-1 underline text-blue-500"> upload</div>
+                    <div className="ml-4 mt-1 underline text-blue-700"> upload</div>
             </div>
              <div>
                 <label className="text-gray-700 block mb-1">Course Type</label>
@@ -195,7 +195,7 @@ function FormContainer(){
             </div>
          </div>
          <div className="text-center mt-4">
-            <p className="text-gray-700">By Registering.I agree with Ticktech_Jr <span className="text-blue-500 hover:underline">Terms & Condition </span> and <span className="text-blue-500 hover:underline">Privacy Policy</span></p>
+            <p className="text-gray-700">By Registering.I agree with Ticktech_Jr <span className="text-blue-500 hover:underline">Terms & Condition </span> and <span className="text-blue-700 hover:underline">Privacy Policy</span></p>
 
          </div>
         
