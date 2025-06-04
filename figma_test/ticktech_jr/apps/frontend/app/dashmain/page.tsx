@@ -61,7 +61,15 @@ function Card (){
 
             </div>
              <div className="min-w-64 min-h-64 rounded-2xl shadow-2xl flex flex-col ">
-                <div className="bg-blue-500 w-full h-32 rounded-t-2xl"></div>
+                <div className="bg-blue-500 w-full h-42 rounded-t-2xl">
+                    <div className="p-4">
+                         <h1 className="text-center text-black text-xl">Space Kids </h1>
+                         <p className=" pt-4 pl-24 pr-6 text-sm">No of Modules: 4
+                            Course Type: Regular
+                            Mode of delivery: Live
+                            One-on-one / Group</p>
+                     </div>
+                </div>
                 <div className=" mt-14">
                      <div className="flex items-center justify-center">
                         <Button text={"Enroll Now"} type={"primary"} />
