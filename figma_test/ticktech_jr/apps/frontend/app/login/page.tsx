@@ -10,7 +10,7 @@ export default function login(){
              src="/bluebg.jpg"
              fill
              alt="bg"
-             className="object-cover "
+             className="object-cover "  // img property to cover image
             />
             <div className="absolute z-10">
                 <Form/>
