@@ -36,7 +36,7 @@ function FormContainer(){
         {/* form */}
         <div className="grid grid-cols-1 gap-8 md:grid grid-cols-2 p-6 border-b-1 border-gray-300">
             {/* left column part */}   {/*left col ko flex -col for tabular view*/}
-            <div className="space-y-4">
+            <div className="space-y-4">  {/*equal spacing*/}
                 <div>
                     <label className="block text-gray-700 mb-1">Name</label>
                     <input 
