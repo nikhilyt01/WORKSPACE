@@ -20,6 +20,7 @@ export default function dashmain(){
                 </div>
 
             </footer>
+            {/* footer  */}
             <div className=" absolute inset-0 z-10 text-center bg-white h-24 w-full ">
                 <div className="flex justify-end mr-12">
                     <div className="grid grid-cols-2 gap-4 pt-10">
