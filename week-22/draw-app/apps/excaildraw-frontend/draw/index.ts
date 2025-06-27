@@ -97,11 +97,11 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
             clearCanvas(existingShapes,canvas,ctx)            // after pushing shape clear & render 
 
         }
-        if(message.type==="clear-canvas"){
-          window.location.reload();
-          // existingShapes.length=0
-          // clearCanvasOnly(canvas, ctx);  
-        }
+        // if(message.type==="clear-canvas"){
+        //   window.location.reload();
+        //   // existingShapes.length=0
+        //   // clearCanvasOnly(canvas, ctx);  
+        // }
        
     }catch(e){
         console.log("Failed to process message",e)
