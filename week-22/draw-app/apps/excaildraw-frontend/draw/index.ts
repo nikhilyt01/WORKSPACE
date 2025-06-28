@@ -480,7 +480,7 @@ async function getExistingShapes(roomId:string){
     })
     return shapes;
 } 
-
+// seperate function for arrow 
 function drawArrowPreview(
     ctx: CanvasRenderingContext2D,
     x1: number,
