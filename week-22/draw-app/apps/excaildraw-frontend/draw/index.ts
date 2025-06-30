@@ -119,6 +119,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string ,socket:We
       let clicked=false;
       let startx=0;
       let starty=0;
+      // to add offset and transform all objects w.r.t offset and startx/y 
 
      canvas.addEventListener("mousedown",(e)=>{
       clicked=true;
