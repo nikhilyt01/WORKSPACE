@@ -86,7 +86,7 @@ app.post("/signin",async (req,res)=>{
           userId:user?.id,
      },JWT_SECRET,{ expiresIn: '8h' })
 
-     res.json({token})
+     res.json({token,message:"SignIn successful"})    // added message field for dynamic handling to show in toast
 
  }catch(e){
      res.json({message:"something went wrong either db or else"})
