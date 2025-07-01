@@ -16,7 +16,7 @@ export default function Signup() {
   const [showpass,setShowpass]=useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault();           //prevents default reload
     setLoading(true);
 
     try {
@@ -45,9 +45,9 @@ export default function Signup() {
       <form onSubmit={handleSignup} className="bg-zinc-700 p-8 rounded-lg w-full max-w-md space-y-4">
         <h2 className="text-2xl font-bold text-center">Sign Up</h2>
         <input type="text" ref={nameRef} placeholder="Name" required className="w-full p-2 rounded bg-zinc-600" />
-        <input type="email" ref={usernameRef} placeholder="Email" required className="w-full p-2 rounded bg-zinc-600" />
+        <input type="email" ref={usernameRef} placeholder="Email" required minLength={6} maxLength={23} className="w-full p-2 rounded bg-zinc-600" />
       <div className="relative">
-        <input type={showpass?"text":"password"} ref={passwordRef} placeholder="Password" required minLength={6} className="w-full p-2 rounded bg-zinc-600" />
+        <input type={showpass?"text":"password"} ref={passwordRef} placeholder="Password" required minLength={3} maxLength={10} className="w-full p-2 rounded bg-zinc-600" />
           <button
            type="button"
            onClick={()=>setShowpass(!showpass)}            //transform -translate-y-1/2  so that shape comes upside i.e centered
