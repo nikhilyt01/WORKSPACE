@@ -53,7 +53,7 @@ app.post("/signup",async (req,res) => {
 app.post("/signin",async (req,res)=>{
      const data = SigninSchema.safeParse(req.body);
      if(!data.success){
-         res.json({
+         res.status(404).json({                  //specifying status code helps in differn. Toast notificn.
                message : "Incorrect Inputs",
                error:data.error.errors
           })
@@ -71,7 +71,7 @@ app.post("/signin",async (req,res)=>{
 
 
  if(!user){
-     res.json({
+     res.status(401).json({                    //status code for error Toast
           message:"Plzz Signup First"
      })
      return;
