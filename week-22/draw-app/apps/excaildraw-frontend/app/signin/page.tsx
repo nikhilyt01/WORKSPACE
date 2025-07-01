@@ -14,6 +14,7 @@ export default function Signin() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [showpass,setShowpass]=useState(false);
+  //const [signinmsg,setSigninmsg]=useState("");
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +28,12 @@ export default function Signin() {
         username,
         password,
       });
+      //setSigninmsg(res.data.message)       not to be used as states causes asynchronus issues
 
       const token = res.data.token;
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && (token) ) {      //to check it runs on browser and token is returned 
         localStorage.setItem("token", token);
+        router.push("/Dashboard");     //push first
          
          // Store in cookies for server-side reading
         Cookies.set("token", token, {
@@ -40,9 +43,9 @@ export default function Signin() {
       });
       }
       
-      toast.success("Signin successfull",{duration:2000})
+      toast.success(res.data.message,{duration:2000})  // return dynamic message from backend 
       //alert("Signin successful!");
-      router.push("/Dashboard");
+      
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Signin failed")
       //alert(err?.response?.data?.message || "Signin failed");
@@ -55,10 +58,10 @@ export default function Signin() {
     <div className="h-screen flex items-center justify-center bg-zinc-900 text-white">
       <form onSubmit={handleSignin} className="bg-zinc-700 p-8 rounded-lg w-full max-w-md space-y-4">
         <h2 className="text-2xl font-bold text-center">Sign In</h2>
-        <input type="email" ref={usernameRef} placeholder="Email" required className="w-full p-2 rounded bg-zinc-600" />
+        <input type="email" ref={usernameRef} placeholder="Email" minLength={6} maxLength={23} required className="w-full p-2 rounded bg-zinc-600" />
         {/* <input type="password" ref={passwordRef} placeholder="Password" required className="w-full p-2 rounded bg-zinc-600" /> */}
         <div className="relative">
-        <input type={showpass?"text":"password"} ref={passwordRef} placeholder="Password" required minLength={6} className="w-full p-2 rounded bg-zinc-600" />
+        <input type={showpass?"text":"password"} ref={passwordRef} placeholder="Password" required minLength={3} maxLength={10} className="w-full p-2 rounded bg-zinc-600" />
           <button
            type="button"
            onClick={()=>setShowpass(!showpass)}            //transform -translate-y-1/2  so that shape comes upside i.e centered
