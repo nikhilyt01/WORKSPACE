@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* this part is due to updatio in tailwindconfig.js (darkthememode replacement) */
+@custom-variant dark (&:where(.dark, .dark *));   
