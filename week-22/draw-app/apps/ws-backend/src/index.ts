@@ -1,4 +1,4 @@
-import { WebSocketServer,WebSocket } from "ws";
+import { WebSocketServer,WebSocket} from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import {prismaClient} from "@repo/db/client";
@@ -32,7 +32,7 @@ return null;    // why?????????????????????????????????????
 }
 
 wss.on("connection",function connection(ws,request) {
-    const url = request.url; // ws://localhost:3000?token=1243647  yaha pe split after ?
+    const url = request.url; // (newaccount....email on Neon.tech) ws://localhost:3000?token=1243647  yaha pe split after ?
     
     if(!url){
         return;
