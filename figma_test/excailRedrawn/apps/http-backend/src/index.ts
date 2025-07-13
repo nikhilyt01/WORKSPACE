@@ -209,5 +209,22 @@ app.get("/rooms/:id",middleware, async (req, res) => {     //  this was not work
        res.status(500).json({ message: "Failed to validate room" });
      }
    });
+//end point to delete all chats or shapes of Room
+   app.delete("/delchats/:roomId",middleware,async(req,res)=>{
+     const roomId=Number(req.params.roomId);
+     const userId=req.userId;
+
+     try{
+         const clear= await prismaClient.chat.deleteMany({
+          where:{
+               roomId
+             //  userId   bcoz room me koi bhi user ho pura del krske middleware is just for authetication 
+          }
+         })
+         res.json({message:"Cleared all "})
+     }catch{
+           res.status(400).json({message:"failed to clear"})
+     }
+})
 
 app.listen(3001);
