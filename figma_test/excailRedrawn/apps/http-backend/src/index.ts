@@ -6,9 +6,12 @@ import {JWT_SECRET} from "@repo/back-common/config";
 import bcrypt from "bcrypt";
 import {prismaClient} from "@repo/db/client"
 import { middleware } from "./middleware";
+import cors from "cors";
 
-const app = express()
-app.use(express.json())
+
+const app = express();
+app.use(cors());
+app.use(express.json());
 
 declare global{
     namespace Express{
