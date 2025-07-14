@@ -71,16 +71,23 @@ wss.on("connection",function connection(ws,request){
    //console.log("user connected")
 
     ws.on("message",async function message(data){
-        let ParsedData;
-        try {
-            ParsedData = JSON.parse(data.toString());   // means Khali string chiye nhi to maa chudaiye
-        } catch (e) {
-            ws.send(JSON.stringify({
-                type: "error",
-                message: "Invalid message format"
-            }));
-            return;
+        let ParsedData;                               // bcoz sending msg as object was giving error and was not being parsed
+        if(typeof data !=="string"){                    // buffer was being returned
+            ParsedData=JSON.parse(data.toString());
+        }else{
+            ParsedData=JSON.parse(data);
         }
+
+        // let ParsedData;
+        // try {
+        //     ParsedData = JSON.parse(data.toString());   // means Khali string chiye nhi to maa chudaiye
+        // } catch (e) {
+        //     ws.send(JSON.stringify({
+        //         type: "error",
+        //         message: "Invalid message format"
+        //     }));
+        //     return;
+        // }
          // commare with User Id is best bcoz some one can use mulyiple tabs but have same user Id
          //          Why compare userId instead of WebSocket (ws)?
          // userId represents the actual user identity from your JWT token
