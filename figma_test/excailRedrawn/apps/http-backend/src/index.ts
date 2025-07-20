@@ -144,7 +144,7 @@ app.get("/user",middleware,async(req,res)=>{
 
     try{
         const room = await prismaClient.room.findMany({
-            where:{adminId:userId},
+            // where:{adminId:userId},  we want user to see all room available
              orderBy:{
                createdat:"desc"
           }
@@ -197,7 +197,7 @@ app.get("/rooms/:id",middleware, async (req, res) => {     //  this was not work
    
      try {
        const roomexists = await prismaClient.room.findUnique({
-         where: { id,adminId:userId },
+         where: { id }, //,adminId:userId bcoz only the creator was able to join room earlier but it should be open for all
        });
    
        if (!roomexists) {
