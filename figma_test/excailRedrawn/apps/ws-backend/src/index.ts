@@ -134,7 +134,7 @@ wss.on("connection",function connection(ws,request){
            })
 
            users.forEach(user =>{
-            if(user.rooms.includes(roomId)) {
+            if(user.rooms.includes(roomId) && user.ws!==ws) {  // so that my message is not broadcasted to me if i sent it
                 user.ws.send(JSON.stringify({
                         type:"chat",
                         message:message,
