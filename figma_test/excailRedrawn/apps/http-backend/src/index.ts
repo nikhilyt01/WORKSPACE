@@ -7,7 +7,11 @@ import bcrypt from "bcrypt";
 import {prismaClient} from "@repo/db/client"
 import { middleware } from "./middleware";
 import cors from "cors";
+import dotenv from "dotenv"
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
+dotenv.config();
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const app = express();
 app.use(cors());
@@ -228,6 +232,80 @@ app.get("/rooms/:id",middleware, async (req, res) => {     //  this was not work
      }catch{
            res.status(400).json({message:"failed to clear"})
      }
+})
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY! )
+app.post("/improveDrawing", async (req,res) =>{
+    const {imageData,prompt}=req.body
+    if (!imageData || !prompt) {
+     res.status(400).json({ error: 'Missing imageData or prompt' });
+     return;
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash", // Or "imagen-4" / "imagen-4-ultra" if available and more suitable
+      systemInstruction: prompt, // Your custom prompt for improvement
+    });
+
+    const imagePart = {
+      inlineData: {
+        mimeType: "image/png", // Or "image/jpeg" based on your canvas output
+        data: imageData.split(',')[1], // Remove "data:image/png;base64," prefix
+      },
+    };
+
+    const result = await model.generateContent([imagePart]);
+    const response = await result.response;
+    const parts = response.candidates?.[0]?.content?.parts;
+
+    // Assuming the AI returns an image directly in the response
+    const improvedImagePart = parts?.find(part => 'inlineData' in part && part.inlineData?.mimeType.startsWith('image/'));
+
+    if (improvedImagePart && 'inlineData' in improvedImagePart) {
+      res.json({ improvedImage: `data:${improvedImagePart?.inlineData?.mimeType};base64,${improvedImagePart?.inlineData?.data}` });
+    } else {
+      // If AI doesn't return an image, it might return text describing the improvement
+      const textPart = parts?.find(part => 'text' in part && typeof part.text === 'string');
+      res.status(200).json({ message: textPart?.text || "AI completed, but no image returned. Try a different prompt." });
+    }
+  } catch (error) {
+    console.error('Error improving drawing:', error);
+    res.status(500).json({ error: 'Failed to improve drawing with AI.' });
+  }
+})
+
+app.post("/solveExpression", async(req,res)=>{
+    const { imageData, prompt } = req.body; // imageData will be Base64
+  if (!imageData || !prompt) {
+     res.status(400).json({ error: 'Missing imageData or prompt' });
+     return;
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Pro model is better for reasoning
+
+    const imagePart = {
+      inlineData: {
+        mimeType: "image/png",
+        data: imageData.split(',')[1],
+      },
+    };
+
+    const result = await model.generateContent([
+      imagePart,
+      { text: prompt }, // The explicit prompt to solve
+      { text: "Provide the solution step-by-step and the final answer. Use LaTeX for mathematical expressions." } // System instruction reinforcement
+    ]);
+    const response = await result.response;
+    const textOutput = response.text(); // Get the plain text response
+
+    res.json({ solution: textOutput });
+
+  } catch (error) {
+    console.error('Error solving expression:', error);
+    res.status(500).json({ error: 'Failed to solve expression with AI.' });
+  }
 })
 
 app.listen(3001);
