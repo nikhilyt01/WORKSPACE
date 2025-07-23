@@ -18,6 +18,7 @@
     "@repo/typescript-config": "workspace:*"
   },
   "dependencies": {
+    "@google/genai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.19",
