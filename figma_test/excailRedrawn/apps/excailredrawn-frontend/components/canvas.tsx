@@ -1,12 +1,19 @@
 
 "use client"
-import {useRef,useEffect,useState} from "react"
+import {useRef,useEffect,useState,useCallback} from "react"
 import { initDraw } from "@/draw";
 import { IconButton } from "./IconButton";
-import { Circle, Hand,Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter,LogOut,MoveRight, Minus, Icon,ZoomIn,ZoomOut } from "lucide-react";
+import { Puzzle,WandSparkles, MousePointer,Circle, Hand,Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter,LogOut,MoveRight, Minus, Icon,ZoomIn,ZoomOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import axiosWithAuth from "./apiwithauth";
+import { http_backend } from "@/config";
+import toast from "react-hot-toast";
+
+const api = axiosWithAuth()
+
 enum Shape {
+     select="Select",
      rect ="Rect",
      pencil="Pencil",
      Oval="Oval",
@@ -45,6 +52,8 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
    const [zoom, setZoom] = useState(1);
    const zoomRef = useRef(1);
 
+
+
     // Handle window resize and set canvas dimensions.
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -79,7 +88,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
          initDraw(CanvasRef.current,roomId,()=>toolRef.current,()=>thicknessRef.current,()=>colorRef.current,socket,()=>zoomRef.current,setZoom)
        }
 
-    },[CanvasRef])
+    },[CanvasRef,roomId,socket])
 
     const handleZoomIn =()=>{
       const newZoom=Math.min(zoom*1.2,5);
@@ -93,7 +102,18 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
     const resetZoom=()=>{
       setZoom(1)
     }
+    async function delchats(){
+      try{
+        const res = await api.delete(`${http_backend}/delchats/${roomId}`)
+        socket.send
+        if(res.data.message){
+          toast.success(res.data.message)
+        }
+      }catch(e){
+         toast.error("failed to del chats")
+      }
 
+    }
     return (
         <div className=" relative w-screen h-screen bg-black  overflow-hidden">
             {/* settings Box at left */}
@@ -142,7 +162,15 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
             </div>
             {/* Logout */}
-            <div className="absolute z-10 top-4 right-4 ">
+            <div className="absolute z-10 top-4 right-4 grid grid-cols-3 gap-2 ">
+                <button className="bg-slate-800/95 text-white p-2 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+                   >
+                  Improve
+                </button>
+                <button className="bg-slate-800/95 text-white p-2 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+                 >
+                  solve
+                </button>
                 <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 active:scale-95 hover:scale-105 "
                 onClick={()=>{router.push("/dashboard")}}>
                     Logout
@@ -196,6 +224,10 @@ function Topbar({selectedTool,setSelectedTool,isMobile}:{
             <div className={`flex items-center ${isMobile?"gap-1":"gap-2"} `}>
                 <IconButton Activated={selectedTool===Shape.Hand} size={isMobile?"sm":"md"} Icon={<Hand/>} // Using AlignCenter as hand icon
                    onclick={()=>setSelectedTool(Shape.Hand)} />
+                <IconButton Activated={selectedTool===Shape.select} Icon={<MousePointer />} size={isMobile?"sm":"md"}
+                    onclick={()=>{
+                    setSelectedTool(Shape.select)
+                    }}/>
                 <IconButton Icon={<RectangleHorizontalIcon/>} size={isMobile?"sm":"md"} Activated={selectedTool===Shape.rect} onclick={()=>setSelectedTool(Shape.rect)}></IconButton>
                 
                  <IconButton Activated={selectedTool===Shape.Oval} Icon={<Circle />} size={isMobile?"sm":"md"}
@@ -226,6 +258,7 @@ function Topbar({selectedTool,setSelectedTool,isMobile}:{
                      onclick={()=>setSelectedTool(Shape.Arrow)}/>
                   <IconButton  Activated={selectedTool===Shape.Line} Icon={<Minus/>} size={isMobile?"sm":"md"}
                     onclick={()=> setSelectedTool(Shape.Line)} />
+                  
             </div>
         </div>
     )
