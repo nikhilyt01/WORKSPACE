@@ -236,6 +236,7 @@ app.get("/rooms/:id",middleware, async (req, res) => {     //  this was not work
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY! )
 app.post("/improveDrawing", async (req,res) =>{
+    console.log("aiendpoint called1")
     const {imageData,prompt}=req.body
     if (!imageData || !prompt) {
      res.status(400).json({ error: 'Missing imageData or prompt' });
@@ -276,6 +277,7 @@ app.post("/improveDrawing", async (req,res) =>{
 })
 
 app.post("/solveExpression", async(req,res)=>{
+    console.log("aiendpoint called2")
     const { imageData, prompt } = req.body; // imageData will be Base64
   if (!imageData || !prompt) {
      res.status(400).json({ error: 'Missing imageData or prompt' });
