@@ -243,16 +243,10 @@ app.post("/improveDrawing", async (req,res) =>{
      res.status(400).json({ error: 'Missing imageData or prompt' });
      return;
   }
+  
 
   try {
     
-
-    const imagePart = {
-      inlineData: {
-        mimeType: "image/png", // Or "image/jpeg" based on your canvas output
-        data: imageData.split(',')[1], // Remove "data:image/png;base64," prefix
-      },
-    };
     const contents = [
   {
     inlineData: {
@@ -275,7 +269,7 @@ app.post("/improveDrawing", async (req,res) =>{
     console.log(response.candidates?.[0]?.content)
     // Assuming the AI returns an image directly in the response
     const improvedImagePart = parts?.find(part => 'inlineData' in part);
-    console.log(improvedImagePart)
+    // console.log(improvedImagePart)
     if (improvedImagePart && 'inlineData' in improvedImagePart) {
       res.json({ improvedImage: `data:${improvedImagePart?.inlineData?.mimeType};base64,${improvedImagePart?.inlineData?.data}` });
     } else {
@@ -284,8 +278,8 @@ app.post("/improveDrawing", async (req,res) =>{
        res.status(200).json({ message:  "AI completed, but no image returned. Try a different prompt." });
     }
   } catch (error) {
-    console.error('Error improving drawing:', error);
-    res.status(500).json({ error: 'Failed to improve drawing with AI.' });
+    //console.error('Error improving drawing:', error);
+    res.status(500).json({ error: 'Failed to improve drawing with AI. or please check ur imageData properly' });
   }
 })
 
