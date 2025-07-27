@@ -5,14 +5,15 @@ import { initDraw } from "@/draw";
 import { IconButton } from "./IconButton";
 import { Puzzle,WandSparkles, MousePointer,Circle, Hand,Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter,LogOut,MoveRight, Minus, Icon,ZoomIn,ZoomOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+import { Shape } from "@/draw";
 import axiosWithAuth from "./apiwithauth";
 import { http_backend } from "@/config";
 import toast from "react-hot-toast";
+import { generateImageFromSelection } from "@/draw";
 
 const api = axiosWithAuth()
 
-enum Shape {
+enum shape {
      select="Select",
      rect ="Rect",
      pencil="Pencil",
@@ -34,16 +35,18 @@ const basicColors = [
      "#ff66ff",
     
    ];
+   // zoom,offset x/y,existingshape,setexistingshape,selectedshapeIds
 export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
     const CanvasRef = useRef<HTMLCanvasElement >(null);
-    const [selectedTool,setSelectedTool] = useState<Shape>(Shape.rect);
-    const toolRef= useRef<Shape>(selectedTool);
+    const [selectedTool,setSelectedTool] = useState<shape>(shape.rect);
+    const toolRef= useRef<shape>(selectedTool);
     const [thickness,setThickness] = useState(2);
     const thicknessRef = useRef(2);
     const [color,setColor]=useState("#ffffff");
     const colorRef =useRef("#ffffff")
     const router =useRouter()
     const [isMobile,setIsMobile]=useState(false)
+    const [check,setCheck]=useState(true)
     const [dimensions, setDimensions] = useState({ 
     width: typeof window !== "undefined" ? window.innerWidth : 0,
     height: typeof window !== "undefined" ? window.innerHeight : 0 
@@ -51,8 +54,33 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
   });
    const [zoom, setZoom] = useState(1);
    const zoomRef = useRef(1);
+   const [offsetX, setOffsetX] = useState(0);
+   const [offsetY, setOffsetY] = useState(0);
+   const [existingShapes, setExistingShapes] = useState<Shape[]>([]);
+   const [selectedShapeIds, setSelectedShapeIds] = useState<Set<string>>(new Set());
+   const [loadImprove,setLoadImprove] = useState(false);
 
 
+   useEffect(()=>{
+      console.log(existingShapes)
+   },[existingShapes])
+  // This function will be passed to initDraw
+  const updateExistingShapes = useCallback((newShapes: React.SetStateAction<Shape[]>) => {
+      setExistingShapes(newShapes);
+    }, []);
+
+  const updateSelectedShapeIds = useCallback((newSelectedIds: React.SetStateAction<Set<string>>) => {
+      setSelectedShapeIds(newSelectedIds);
+    }, []);
+   const updateZoom = useCallback((newZoom: number) => {
+    setZoom(newZoom);
+  }, []);
+// for zoom on wheel 
+    const updatezoomandoffset =useCallback((newzoom:number,offsetx:number,offsety:number)=>{
+         setZoom(newzoom);
+         setOffsetX(offsetx);
+         setOffsetY(offsetY);
+    },[])
 
     // Handle window resize and set canvas dimensions.
   useEffect(() => {
@@ -85,15 +113,40 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
     useEffect(()=>{
        if(CanvasRef.current){
-         initDraw(CanvasRef.current,roomId,()=>toolRef.current,()=>thicknessRef.current,()=>colorRef.current,socket,()=>zoomRef.current,setZoom)
+         initDraw(
+          CanvasRef.current,
+          roomId,
+          ()=>toolRef.current,
+          ()=>thicknessRef.current,
+          ()=>colorRef.current,
+          socket,
+          ()=>zoomRef.current,
+          updateZoom,
+          updateOffsetX,
+          updateOffsetY,
+          existingShapes,
+          updateExistingShapes,
+          offsetX,
+          offsetY,
+          selectedShapeIds,
+          updateSelectedShapeIds
+        )
        }
 
-    },[CanvasRef,roomId,socket])
+    },[CanvasRef,roomId,socket,check])
+
+    // Create stable setter functions
+    const updateOffsetX = useCallback((newOffsetX: number) => {
+     setOffsetX(newOffsetX);
+    }, []);
+
+    const updateOffsetY = useCallback((newOffsetY: number) => {
+     setOffsetY(newOffsetY);
+    }, []);
 
     const handleZoomIn =()=>{
       const newZoom=Math.min(zoom*1.2,5);
       setZoom(newZoom)
-      
     }
     const handleZoomOut=()=>{
       const newZoom=Math.max(zoom/1.2,0.1)
@@ -105,7 +158,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
     async function delchats(){
       try{
         const res = await api.delete(`${http_backend}/delchats/${roomId}`)
-        socket.send
+        setCheck(prev=>!prev)
         if(res.data.message){
           toast.success(res.data.message)
         }
@@ -114,6 +167,22 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
       }
 
     }
+   async function handleImprove() {
+    try {
+      setLoadImprove(true);
+      await generateImageFromSelection(
+        existingShapes,
+        selectedShapeIds,
+        roomId,
+        socket
+      );
+    } catch (error) {
+      console.error("Improvement failed:", error);
+      toast.error("Failed to improve image");
+    } finally {
+      setLoadImprove(false); // Runs whether success or failure
+    }
+  }
     return (
         <div className=" relative w-screen h-screen bg-black  overflow-hidden">
             {/* settings Box at left */}
@@ -133,7 +202,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
                       />
                     </div>
                 </div>
-               { selectedTool !== Shape.Eraser && 
+               { selectedTool !== shape.Eraser && 
                <div className="space-y-2">
                     <div><p className="text-sm font-medium text-slate-300 ">Custom color:</p></div>
                     <input 
@@ -162,14 +231,16 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
             </div>
             {/* Logout */}
-            <div className="absolute z-10 top-4 right-4 grid grid-cols-3 gap-2 ">
-                <button className="bg-slate-800/95 text-white p-2 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+            <div className="absolute z-10 top-4 right-4 flex gap-2 ">
+                <button className="bg-slate-800/95 text-white p-1 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+                    disabled={loadImprove}  onClick={handleImprove}
                    >
-                  Improve
+                  {loadImprove?"Improving...":"Improve"}
                 </button>
-                <button className="bg-slate-800/95 text-white p-2 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+                <button className="bg-slate-800/95 text-white p-1 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+                  onClick={delchats}
                  >
-                  solve
+                  clear
                 </button>
                 <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 active:scale-95 hover:scale-105 "
                 onClick={()=>{router.push("/dashboard")}}>
@@ -217,47 +288,47 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
 }
 function Topbar({selectedTool,setSelectedTool,isMobile}:{
-    selectedTool:Shape, setSelectedTool:(s:Shape)=>void,isMobile:boolean
+    selectedTool:shape, setSelectedTool:(s:shape)=>void,isMobile:boolean
 }){
     return (
         <div>
             <div className={`flex items-center ${isMobile?"gap-1":"gap-2"} `}>
-                <IconButton Activated={selectedTool===Shape.Hand} size={isMobile?"sm":"md"} Icon={<Hand/>} // Using AlignCenter as hand icon
-                   onclick={()=>setSelectedTool(Shape.Hand)} />
-                <IconButton Activated={selectedTool===Shape.select} Icon={<MousePointer />} size={isMobile?"sm":"md"}
+                <IconButton Activated={selectedTool===shape.Hand} size={isMobile?"sm":"md"} Icon={<Hand/>} // Using AlignCenter as hand icon
+                   onclick={()=>setSelectedTool(shape.Hand)} />
+                <IconButton Activated={selectedTool===shape.select} Icon={<MousePointer />} size={isMobile?"sm":"md"}
                     onclick={()=>{
-                    setSelectedTool(Shape.select)
+                    setSelectedTool(shape.select)
                     }}/>
-                <IconButton Icon={<RectangleHorizontalIcon/>} size={isMobile?"sm":"md"} Activated={selectedTool===Shape.rect} onclick={()=>setSelectedTool(Shape.rect)}></IconButton>
+                <IconButton Icon={<RectangleHorizontalIcon/>} size={isMobile?"sm":"md"} Activated={selectedTool===shape.rect} onclick={()=>setSelectedTool(shape.rect)}></IconButton>
                 
-                 <IconButton Activated={selectedTool===Shape.Oval} Icon={<Circle />} size={isMobile?"sm":"md"}
+                 <IconButton Activated={selectedTool===shape.Oval} Icon={<Circle />} size={isMobile?"sm":"md"}
                     onclick={()=>{
-                    setSelectedTool(Shape.Oval)
+                    setSelectedTool(shape.Oval)
                     }}/>
 
-                  <IconButton Activated={selectedTool===Shape.Text} Icon={<Type/>} size={isMobile?"sm":"md"}
+                  <IconButton Activated={selectedTool===shape.Text} Icon={<Type/>} size={isMobile?"sm":"md"}
                      onclick={()=>{
-                    setSelectedTool(Shape.Text)
+                    setSelectedTool(shape.Text)
                     }}/> 
 
-                  <IconButton Activated={selectedTool===Shape.Triangle} Icon={<Triangle/>} size={isMobile?"sm":"md"}
+                  <IconButton Activated={selectedTool===shape.Triangle} Icon={<Triangle/>} size={isMobile?"sm":"md"}
                      onclick={()=>{
-                    setSelectedTool(Shape.Triangle)
+                    setSelectedTool(shape.Triangle)
                     }}/>
                   <IconButton 
-                       Activated={selectedTool===Shape.pencil} size={isMobile?"sm":"md"}
+                       Activated={selectedTool===shape.pencil} size={isMobile?"sm":"md"}
                        Icon={<Pencil />} 
                        onclick={()=>{
-                            setSelectedTool(Shape.pencil)
+                            setSelectedTool(shape.pencil)
                          }}/>
-                  <IconButton Activated={selectedTool===Shape.Eraser} Icon={<Eraser/>} size={isMobile?"sm":"md"}
+                  <IconButton Activated={selectedTool===shape.Eraser} Icon={<Eraser/>} size={isMobile?"sm":"md"}
                      onclick={()=>{
-                    setSelectedTool(Shape.Eraser)
+                    setSelectedTool(shape.Eraser)
                     }}/>
-                  <IconButton Activated={selectedTool===Shape.Arrow} Icon={<MoveRight/>}  size={isMobile?"sm":"md"}
-                     onclick={()=>setSelectedTool(Shape.Arrow)}/>
-                  <IconButton  Activated={selectedTool===Shape.Line} Icon={<Minus/>} size={isMobile?"sm":"md"}
-                    onclick={()=> setSelectedTool(Shape.Line)} />
+                  <IconButton Activated={selectedTool===shape.Arrow} Icon={<MoveRight/>}  size={isMobile?"sm":"md"}
+                     onclick={()=>setSelectedTool(shape.Arrow)}/>
+                  <IconButton  Activated={selectedTool===shape.Line} Icon={<Minus/>} size={isMobile?"sm":"md"}
+                    onclick={()=> setSelectedTool(shape.Line)} />
                   
             </div>
         </div>
