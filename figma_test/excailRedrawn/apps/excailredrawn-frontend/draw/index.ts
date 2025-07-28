@@ -1051,3 +1051,81 @@ export async function generateImageFromSelection(
         console.error("Error sending image to backend:", error);
     }
 }
+export async function solveExpression(
+    existingShapes:Shape[],
+    selectedShapeIds: Set<string>,
+    roomId:string,
+    socket:WebSocket,
+    setAiresponse:(response:string | null)=> void,
+
+) {
+    if(selectedShapeIds.size===0){
+        toast.error("No selecetion")
+    }
+    const selectedShapes = existingShapes.filter(shape => selectedShapeIds.has(shape.id));
+
+     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    selectedShapes.forEach(shape => {
+        const bbox = getShapeBoundingBox(shape);
+        if (bbox) {
+            minX = Math.min(minX, bbox.x);
+            minY = Math.min(minY, bbox.y);
+            maxX = Math.max(maxX, bbox.x + bbox.width);
+            maxY = Math.max(maxY, bbox.y + bbox.height);
+        }
+    });
+
+    if (minX === Infinity) { // No valid shapes found
+        toast.error("Could not determine bounding box for selected shapes.");
+        return;
+    }
+
+    const PADDING = 20; // Add some padding around the shapes
+    const canvasWidth = (maxX - minX) + PADDING * 2;
+    const canvasHeight = (maxY - minY) + PADDING * 2;
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvasWidth;
+    tempCanvas.height = canvasHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) {
+        toast.error("Failed to create temporary canvas.");
+        return;
+    }
+    tempCtx.clearRect(0,0,tempCanvas.width,tempCanvas.height)
+    tempCtx.fillStyle ="black"
+    tempCtx.fillRect(0,0,tempCanvas.width,tempCanvas.height)
+    tempCtx.translate(-minX + PADDING, -minY + PADDING);
+
+    selectedShapes.forEach(shape => {
+        // We're drawing without pan/zoom transforms as the tempCanvas is scaled to the content
+        drawShape(tempCtx, shape, 1); // Pass 0,0 for offset and 1 for zoom
+    });
+    tempCtx.restore()
+    try {
+        const imageDataUrl = tempCanvas.toDataURL("image/jpeg",0.9); // Get base64 image data
+
+        const response=await axios.post(`${http_backend}/solveExpression`,
+            {imageData:imageDataUrl}
+        )
+        if(response.data.solveResult){
+            socket.send(JSON.stringify({
+                type:"solve",
+                message:response.data.solveResult,
+                roomId
+            }))
+            setAiresponse(JSON.stringify(response.data.solveResult[0]))
+        }
+        else if(response.data.error){
+            toast.error(response.data.error)
+        }
+    }catch(error:any){
+        toast.error("Error generating AI image.");
+        setAiresponse((JSON.stringify(error.rawData[0])))
+        console.error("Error sending image to backend:", error);
+    }
+
+
+
+    
+}
