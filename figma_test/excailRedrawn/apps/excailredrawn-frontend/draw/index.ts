@@ -2,6 +2,7 @@
 
 import { http_backend } from "@/config";
 import axios from "axios";
+import { resolve } from "path";
 import toast from "react-hot-toast";
 
 // Ensure 'uuid' is installed: npm install uuid
@@ -9,7 +10,7 @@ import toast from "react-hot-toast";
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
 // --- Shape Type Definition (Updated with 'id') ---
-type Shape = {
+export type Shape = {
     type: "rect";
     id: string;
     x: number;
@@ -74,7 +75,18 @@ type Shape = {
     y: number;
     text: string;
     strokecolor: string;
+} | {
+    type: "image"; // NEW: Image type
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    imageUrl: string; // URL of the image
+    prompt?: string; // Optional: Store the prompt used for generation,
+    imgElement?: HTMLImageElement; // NEW: Store the loaded image element here
 };
+
 
 // --- Helper for Bounding Box of Shapes ---
 // This is a crucial helper to get the min/max coordinates for different shape types
@@ -140,6 +152,8 @@ function getShapeBoundingBox(shape: Shape): { x: number, y: number, width: numbe
         const estimatedWidth = shape.text.length * FONT_SIZE * APPROX_CHAR_WIDTH;
         const estimatedHeight = FONT_SIZE * 1.2; // Line height
         return { x: shape.x, y: shape.y, width: estimatedWidth, height: estimatedHeight };
+    }  else if (shape.type === "image") { // NEW: Image type bounding box
+        return { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
     }
     return null; // For unknown shape types
 }
@@ -164,21 +178,34 @@ export async function initDraw(
     getColor: () => string,
     socket: WebSocket,
     getZoom: () => number,
-    setZoom: (zoom: number) => void
+    setZoom: (zoom: number) => void,  // setter function thorugh useCallback
+    setOffsetX: (offsetX: number) => void,      //  Add offsetX setter
+    setOffsetY: (offsetY: number) => void,      //  Add offsetY setter
+    existingShapes: Shape[],
+    setExistingShapes: React.Dispatch<React.SetStateAction<Shape[]>>,
+    initialOffsetX: number,  // ✅ Rename for clarity offset moved to global canvas.tsx (parent)
+    initialOffsetY: number,  // 
+    seelectedShapeIds: Set<string>,
+    setSelectedShapeIds: React.Dispatch<React.SetStateAction<Set<string>>>
 ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let existingShapes: Shape[] = [];
+    //let existingShapes: Shape[] = [];
     let isPanning = false;
     let panStartX = 0;
     let panStartY = 0;
-    let offsetX = 0;
-    let offsetY = 0;
+   // let offsetX = 0;
+   // let offsetY = 0;
     let zoom = 1;
 
+     // Use initial values and update through setters
+    let offsetX = initialOffsetX;
+    let offsetY = initialOffsetY;
+   
+
     // --- NEW STATE FOR SELECTION ---
-    let selectedShapeIds: Set<string> = new Set(); // Use a Set for efficient lookup
+    let selectedShapeIds = new Set(seelectedShapeIds); // == seelectedshapeIds can create nothing but referen of parent one  // initialize with parents value // Use a Set for efficient lookup
     let isSelecting = false;
     let selectionRectStartX = 0;
     let selectionRectStartY = 0;
@@ -186,16 +213,19 @@ export async function initDraw(
     // --- END NEW STATE ---
 
     try {
+        // it is parameter means we have removed local logic part
         existingShapes = (await getExistingshapes(roomId)).map((shape: any) => ({
             ...shape,
             id: shape.id || uuidv4() // Ensure all loaded shapes have an ID
         }));
+        setExistingShapes(existingShapes)// local array ko hi Parent me hydrate
         clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
 
-        socket.onmessage = (event) => {
-            try {
-                const message = JSON.parse(event.data);
+        socket.onmessage = async (event) => {
+            try { console.log("some messahe is broadcased")
+                const message = JSON.parse(event.data); // {type:"jR"|"chat",message:{"shape":{..}} , roomId}
                 if (message.type === "error") {
+                    console.log("error from ws")
                     toast.error(message.message, {
                         duration: 4000,
                         position: "top-center"
@@ -203,27 +233,40 @@ export async function initDraw(
                     return;
                 }
                 if (message.type === "chat") {
+                    console.log("chat received")
                     const parsedShapeData = JSON.parse(message.message);
                     const newShape: Shape = {
                         ...parsedShapeData.shape,
                         id: parsedShapeData.shape.id || uuidv4() // Assign ID if missing
                     };
                     existingShapes.push(newShape);
+                    setExistingShapes(prevshape=> [...prevshape,newShape]) // for updating parent also
                     clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
                 }
                 // --- NEW: Handle image broadcast if you integrate it later ---
                 if (message.type === "image") {
-                    const { imageUrl, prompt, roomId: msgRoomId } = message;
-                    // For now, let's add it as a "text" shape indicating an image was generated
-                    // In a real app, you might have a dedicated 'image' shape type with x, y, width, height
-                    const imageShape: Shape = {
-                        type: "text", // Or a new 'image' type if you define it
-                        id: uuidv4(),
-                        x: 50, y: 50, // Placeholder position
-                        text: `AI Generated Image: ${prompt} (URL: ${imageUrl.substring(0, 30)}...)`,
-                        strokecolor: "purple"
-                    };
-                    existingShapes.push(imageShape);
+                    const parsedShapeData = JSON.parse(message.message);
+                    const newShape:Shape = {
+                        ...parsedShapeData.shape,
+                        id:parsedShapeData.shape.id || uuidv4 
+                    }
+                    if(newShape.type==="image"){
+                        const img = new Image();
+                        img.src= newShape.imageUrl;
+                        await new Promise<void> ((resolve)=>{
+                            img.onload = ()=>{
+                               newShape.imgElement = img
+                               resolve(); // i think this was missing so img was not being loaded
+                            }
+                            img.onerror =()=>{
+                               console.log("failed to preload img on brodcast")
+                               resolve()
+                            }
+
+                        })
+                    }
+                    existingShapes.push(newShape);
+                    setExistingShapes(preShape=> [...preShape,newShape])  // passes to parent canvas.tsx
                     clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
                     toast.success("New AI image received!");
                 }
@@ -272,6 +315,7 @@ export async function initDraw(
             selectionRectStartY = worldY;
             currentSelectionRect = { x: worldX, y: worldY, width: 0, height: 0 };
             selectedShapeIds.clear(); // Clear previous selection when starting a new one
+            setSelectedShapeIds(new Set<string>());  // passing to parent (canvas.tsx)
             clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds, currentSelectionRect); // Draw selection preview
             return;
         }
@@ -352,6 +396,8 @@ export async function initDraw(
                 };
 
                 existingShapes.push(shape);
+                setExistingShapes(preShape=> [...preShape,shape])  // passes to parent canvas.tsx
+
 
                 socket.send(
                     JSON.stringify({
@@ -405,12 +451,20 @@ export async function initDraw(
             };
 
             selectedShapeIds.clear(); // Clear previous selection
+            setSelectedShapeIds(new Set<string>());
+
+            const newSelectedIds = new Set<string>(); // Fresh Set
             existingShapes.forEach(shape => {
                 const shapeBBox = getShapeBoundingBox(shape);
                 if (shapeBBox && checkRectIntersection(selectionRect, shapeBBox)) {
-                    selectedShapeIds.add(shape.id); // Add shape's ID to the selected set
+                     newSelectedIds.add(shape.id); // Add to NEW Set
+                   // selectedShapeIds.add(shape.id); // Add shape's ID to the selected set
                 }
             });
+               // 3. Update parent state
+               setSelectedShapeIds(newSelectedIds); // ✅ Triggers re-render
+               // Optional: Sync local copy if needed elsewhere
+               selectedShapeIds = newSelectedIds;
             clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds); // Re-render to show selected shapes
             return;
         }
@@ -506,6 +560,7 @@ export async function initDraw(
         // --- End Drawing Tool Shape Creation ---
 
         existingShapes.push(shape);
+        setExistingShapes(preShape=> [...preShape,shape])  // passes to parent canvas.tsx
         if (shape) {
             socket.send(JSON.stringify({
                 type: "chat",
@@ -527,8 +582,14 @@ export async function initDraw(
         const adjustedEndY = (clientY - offsetY) / zoom; // Current world Y
 
         if (isPanning) {
+            // ✅ Update local tracking variables
             offsetX = clientX - panStartX;
             offsetY = clientY - panStartY;
+            // ✅ Update parent state immediately this is for just passing to parent locally work is same 
+            setOffsetX(offsetX)
+            setOffsetY(offsetY)
+
+            
             clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
             return;
         }
@@ -617,7 +678,10 @@ export async function initDraw(
         offsetX = mouseX - (mouseX - offsetX) * zoomRatio;
         offsetY = mouseY - (mouseY - offsetY) * zoomRatio;
 
+        // can also use her panandzoom(newzoom,offsetx,offsety) for setting all at once 
         setZoom(newZoom); // Update zoom state
+        setOffsetX(offsetX);//update all varibale to set it for parent canvas.tsx
+        setOffsetY(offsetY);
         clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, newZoom, selectedShapeIds);
     });
 
@@ -625,36 +689,23 @@ export async function initDraw(
     document.addEventListener("click", (e) => {
         if (e.target !== canvas && selectedShapeIds.size > 0) {
             selectedShapeIds.clear();
-            clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
+            setSelectedShapeIds(new Set<string>()) // pass to parent
+            clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds,currentSelectionRect);
         }
     });
     // --- END NEW DESELECT ---
 }
-
-// --- Modified clearCanvas function ---
-function clearCanvas(
-    existingShapes: Shape[],
-    canvas: HTMLCanvasElement,
+function drawShape(
     ctx: CanvasRenderingContext2D,
-    offsetX: number,
-    offsetY: number,
+    shape: Shape,
+    // offsetX: number, // These are for the main canvas, might not be needed inside this helper for drawing already transformed shapes.
+    // offsetY: number,
     zoom: number,
-    selectedShapeIds: Set<string>, // Added parameter for selected shape IDs
-    currentSelectionRect: { x: number, y: number, width: number, height: number } | null = null // Added for live selection rect preview
+
 ) {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ctx.fillStyle = "rgba(0,0,0,0)"; // Make background transparent if it's a sketchpad
-    // ctx.fillRect(0,0,canvas.width,canvas.height) // Removed fill rect to not cover previous shapes
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoom, zoom);
-
-    existingShapes.forEach((shape) => { // Use forEach for drawing, map is for transformation
-        ctx.strokeStyle = shape.type === "eraser" ? "black" : shape.strokecolor;
+     if(shape.type!=="image"){
+         ctx.strokeStyle = shape.type === "eraser" ? "black" : shape.strokecolor;
+        }
         // Adjust line width for zoom, so it appears consistent
        
         // Text doesn't have strokewidth, so check for text type or undefined
@@ -701,9 +752,70 @@ function clearCanvas(
             ctx.fillStyle = shape.strokecolor;
             ctx.textBaseline = "top";
             ctx.fillText(shape.text, shape.x, shape.y);
+        } else if (shape.type === "image") { // NEW: Draw image
+            const img = new Image();
+            img.src = shape.imageUrl; 
+             // Check if the image is already loaded to avoid drawing before it's ready
+        if (shape.imgElement && shape.imgElement.complete) {  
+            ctx.drawImage(img, shape.x, shape.y, shape.width, shape.height);
+        } else {
+            // If not loaded, set onload to re-render when it is.
+            // This might cause a flicker initially but ensures the image appears.
+            
+            // Draw a placeholder if the image is not yet loaded
+            ctx.fillStyle = "#555"; // Dark gray placeholder
+            ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+            ctx.strokeStyle = "#AAA";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+            ctx.fillStyle = "#FFF";
+            ctx.font = `${12 / ctx.getTransform().a}px Arial`; // Scale font for placeholder text
+            ctx.fillText("Loading...", shape.x + 5, shape.y + shape.height / 2 - 5);
+            //clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds, currentSelectionRect);
+            
         }
+    }
+        // bcoz if we draw in tempcanvas unneccessary blue higlights will cause issue
+        // // --- NEW: Draw selection highlight for selected shapes ---
+        // if (selectedShapeIds.has(shape.id)) {
+        //     const bbox = getShapeBoundingBox(shape);
+        //     if (bbox) {
+        //         ctx.save();
+        //         ctx.strokeStyle = "blue";
+        //         ctx.lineWidth = 2 / zoom; // Consistent highlight line width
+        //         ctx.setLineDash([5 / zoom, 5 / zoom]); // Consistent dash pattern
+        //         ctx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
+        //         ctx.restore(); // Restore context after drawing highlight
+        //     }
+        // }
 
-        // --- NEW: Draw selection highlight for selected shapes ---
+}
+
+// --- Modified clearCanvas function ---
+function clearCanvas(
+    existingShapes: Shape[],
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+    offsetX: number,
+    offsetY: number,
+    zoom: number,
+    selectedShapeIds: Set<string>, // Added parameter for selected shape IDs
+    currentSelectionRect: { x: number, y: number, width: number, height: number } | null = null // Added for live selection rect preview
+) {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.fillStyle = "rgba(0,0,0,0)"; // Make background transparent if it's a sketchpad
+    // ctx.fillRect(0,0,canvas.width,canvas.height) // Removed fill rect to not cover previous shapes
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(zoom, zoom);
+
+    existingShapes.forEach((shape) => { // Use forEach for drawing, map is for transformation
+        drawShape(ctx, shape, zoom); // , offsetX, offsetY not of use
+        // --- Draw selection highlight for selected shapes ---
         if (selectedShapeIds.has(shape.id)) {
             const bbox = getShapeBoundingBox(shape);
             if (bbox) {
@@ -712,10 +824,9 @@ function clearCanvas(
                 ctx.lineWidth = 2 / zoom; // Consistent highlight line width
                 ctx.setLineDash([5 / zoom, 5 / zoom]); // Consistent dash pattern
                 ctx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
-                ctx.restore(); // Restore context after drawing highlight
+                ctx.restore();
             }
         }
-        // --- END NEW HIGHLIGHT ---
     });
 
     // --- NEW: Draw live selection rectangle preview (if active) ---
@@ -739,14 +850,36 @@ function clearCanvas(
 }
 
 // Existing helper functions
-async function getExistingshapes(roomId: string) {
+async function getExistingshapes(roomId: string): Promise<Shape[]> {
     const res = await axios.get(`${http_backend}/chat/${roomId}`);
     const messageArray = res.data.message;
-    const Shapes = messageArray.map((x: { message: string }) => {
-        const parsedMessage = JSON.parse(x.message);
-        return parsedMessage.shape;
-    });
-    return Shapes;
+    const Shapes =await Promise.all(messageArray.map( async (chat: { message: string } ) => {  // chat ke under message:{shape:{type:,id:..}}
+        const parsedMessage = JSON.parse(chat.message);
+        const shape:Shape ={ // particular shape
+            ...parsedMessage.shape,
+            id:parsedMessage.shape.id || uuidv4
+        }
+       // ------ agar shape image-----
+        if(shape.type==="image"){
+            const img = new Image()
+            img.src=shape.imageUrl;
+            await new Promise<void>((resolve)=>{
+                img.onload =()=>{
+                    shape.imgElement=img;
+                    resolve()
+                }
+                img.onerror =()=>{
+                    console.log("errror loading img",shape.imageUrl)
+                    resolve()
+                }
+            })
+        }
+        //------------------------else---
+        return shape
+       // return parsedMessage.shape;
+    })
+)
+    return Shapes;     // array of all shape
 }
 
 function drawArrowPreview(
@@ -784,4 +917,137 @@ function drawArrowPreview(
     ctx.moveTo(x2, y2);
     ctx.lineTo(rightX, rightY);
     ctx.stroke();
+}
+
+// Function to generate an image from selected shapes and send to backend
+export async function generateImageFromSelection(
+    existingShapes: Shape[],
+    selectedShapeIds: Set<string>,
+    roomId: string,
+    socket: WebSocket,
+) {
+    if (selectedShapeIds.size === 0) {
+        toast.error("No shapes selected to generate an image.");
+        return;
+    }
+
+    const selectedShapes = existingShapes.filter(shape => selectedShapeIds.has(shape.id));
+
+    // Determine the bounding box of the entire selection
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    selectedShapes.forEach(shape => {
+        const bbox = getShapeBoundingBox(shape);
+        if (bbox) {
+            minX = Math.min(minX, bbox.x);
+            minY = Math.min(minY, bbox.y);
+            maxX = Math.max(maxX, bbox.x + bbox.width);
+            maxY = Math.max(maxY, bbox.y + bbox.height);
+        }
+    });
+
+    if (minX === Infinity) { // No valid shapes found
+        toast.error("Could not determine bounding box for selected shapes.");
+        return;
+    }
+
+    const PADDING = 20; // Add some padding around the shapes
+    const canvasWidth = (maxX - minX) + PADDING * 2;
+    const canvasHeight = (maxY - minY) + PADDING * 2;
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvasWidth;
+    tempCanvas.height = canvasHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) {
+        toast.error("Failed to create temporary canvas.");
+        return;
+    }
+    tempCtx.clearRect(0,0,tempCanvas.width,tempCanvas.height)
+    tempCtx.fillStyle ="black"
+    tempCtx.fillRect(0,0,tempCanvas.width,tempCanvas.height)
+    // Translate context to draw shapes relative to the tempCanvas origin
+    tempCtx.translate(-minX + PADDING, -minY + PADDING);
+
+    // Draw only the selected shapes onto the temporary canvas
+    selectedShapes.forEach(shape => {
+        // We're drawing without pan/zoom transforms as the tempCanvas is scaled to the content
+        drawShape(tempCtx, shape, 1); // Pass 0,0 for offset and 1 for zoom
+    });
+    tempCtx.restore()
+    try {
+        const imageDataUrl = tempCanvas.toDataURL("image/jpeg",0.9); // Get base64 image data
+        const aiPrompt = 
+           "Transform this sketch into the most realistic version possible while preserving the core elements. Analyze the drawn elements and: " +
+           "1. If objects/creatures resemble real-world items (vehicles, animals, humans), generate a photorealistic version considering same orientation " +
+           "2. If abstract, enhance with realistic textures and proper lighting " +
+           "3. For anatomical sketches (like skeletons), create accurate medical/scientific illustrations " +
+           "4. Optimize colors to natural tones while maintaining contrast " +
+           "5. Reconstruct perspective and proportions to follow real-world physics " +
+           "6. Add contextually appropriate details (e.g., turn rectangle wheels into proper tires with rims) " +
+           "Important: " +
+           "-consider generating image with same geometry and orientaion"+
+           "- Prioritize realism over artistic styles and " +
+           "- The Background should be same as provided img i.e Black"
+           "- Never return cartoonish/abstract results " +
+           "- If the sketch resembles multiple real objects, choose the most probable one " +
+           "- For human figures, maintain realistic proportions and anatomy";
+        const prompt ="Transform this hand-drawn sketch into a polished, visually appealing version while preserving the original composition. Optimize colors to be vibrant yet natural, clean up rough edges, and enhance details where possible. If the drawing contains recognizable objects (e.g., trees, buildings, faces), refine them to look more realistic or stylistically consistent. Maintain the original intent but elevate the overall aesthetic quality." // Example prompt
+        toast.loading("Generating AI image from selection...", { id: "ai-gen" });
+
+        // Send the image data to your backend API
+        const response = await axios.post(`${http_backend}/improveDrawing`, {
+            imageData: imageDataUrl,
+            // You can also send a prompt from the user if you have a UI for it
+            prompt:aiPrompt 
+        });  // prompt removed to create more realistic one
+
+        toast.dismiss("ai-gen");
+
+        if (response.data && response.data.improvedImage) {
+            const newImageShape: Shape = {
+                type: "image",
+                id: uuidv4(),
+                x: minX, // Place the new image at the top-left of the original selection
+                y: maxY , // Place it below the original selection
+                width: canvasWidth, // Use the same width as the captured image
+                height: canvasHeight, // Use the same height as the captured image
+                imageUrl: response.data.improvedImage,
+                prompt: aiPrompt // Store the prompt for reference
+            };
+
+            // Pre-load the new image before adding to existingShapes
+            const img = new Image();
+            img.src = newImageShape.imageUrl;
+            
+            await new Promise<void>((resolve, reject) => {
+                    img.onload = () => {
+                        newImageShape.imgElement = img;
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        toast.error("Failed to load AI generated image.");
+                        reject(new Error("Image load failed"));
+                    };
+            }); 
+
+            socket.send(
+                JSON.stringify({
+                    type: "image", // Use the "image" message type for broadcasting
+                    message: JSON.stringify({ shape: newImageShape }),
+                    roomId,
+                })
+            );
+            
+            toast.success("AI image generated and added to canvas!");
+        }else if(response.data.message){
+             toast.success(response.data.message);// ai returned text
+        }
+         else {
+            toast.error("AI image generation failed: No image URL received.");
+        }
+    } catch (error) {
+        toast.dismiss("ai-gen");
+        toast.error("Error generating AI image.");
+        console.error("Error sending image to backend:", error);
+    }
 }
