@@ -1,4 +1,4 @@
-import express from "express";
+import express, { text } from "express";
 import { Request,response } from "express";
 import {CreateUserSchema,SigninSchema,CreateRoomSchema} from "@repo/common/types";
 import jwt from "jsonwebtoken";;
@@ -283,38 +283,99 @@ app.post("/improveDrawing", async (req,res) =>{
   }
 })
 
-// app.post("/solveExpression", async(req,res)=>{
-//     console.log("aiendpoint called2")
-//     const { imageData, prompt } = req.body; // imageData will be Base64
-//   if (!imageData || !prompt) {
-//      res.status(400).json({ error: 'Missing imageData or prompt' });
-//      return;
-//   }
 
-//   try {
-//     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Pro model is better for reasoning
+app.post("/solveExpression",async(req , res)=>{
+   const prompt =
+    'f"You have been given an image that contains various mathematical, graphical, abstract problems, or event descriptions. Your task is to analyze the image and either solve, interpret, or provide recommendations based on its content. The image will clearly fall into exactly one of the following categories, each with specific handling requirements:\\n\\n' +
+    "1. Simple Mathematical Expression:\\n" +
+    "   - Examples: 2 + 2, 3 * 4, 5 / 6, 7 - 8, etc.\\n" +
+    "   - Solve the expression using the PEMDAS rule (i.e., Parentheses, Exponents, Multiplication/Division left-to-right, Addition/Subtraction left-to-right).\\n" +
+    "   - Return your answer as a list containing a single dictionary formatted as: [{'expr': <original expression>, 'result': <calculated answer>}].\\n\\n" +
+    "2. Set of Equations:\\n" +
+    "   - Examples: x^2 + 2x + 1 = 0, 3y + 4x = 0, 5x^2 + 6y + 7 = 12, etc.\\n" +
+    "   - Solve for all variables present. For each variable, return a dictionary formatted as: {'expr': '<variable>', 'result': <calculated value>, 'assign': True}.\\n" +
+    "   - Return the results as a comma-separated list of dictionaries.\\n\\n" +
+    "3. Variable Assignment:\\n" +
+    "   - Examples: x = 4, y = 5, z = 6, etc.\\n" +
+    "   - Directly assign the provided values to their respective variables.\\n" +
+    "   - Return the assignments as a list of dictionaries (each with 'assign': True), e.g., [{'expr': 'x', 'result': 4, 'assign': True}].\\n\\n" +
+    "4. Graphical Math Problems:\\n" +
+    "   - These include word problems depicted as drawings (e.g., collisions, trigonometric setups, Pythagorean problems, or sports scenarios).\\n" +
+    "   - Pay close attention to visual details, including color coding and annotations.\\n" +
+    "   - Return your answer as a list containing a single dictionary formatted as: [{'expr': <description>, 'result': <calculated answer>}].\\n\\n" +
+    "5. Abstract Concept Interpretation with Interactive Suggestions:\\n" +
+    "   - This category combines abstract concept interpretation with interactive suggestions. It covers images representing abstract ideas (e.g., love, hate, jealousy, patriotism), historical references, or additional interactive drawings that imply further actions.\\n" +
+    "   - Analyze the drawing and provide a clear explanation of the underlying concept.\\n" +
+    "   - Additionally, if the image suggests further actions or interactive elements, include actionable suggestions or next steps.\\n" +
+    "   - Format your answer as a list containing a single dictionary, e.g., [{'expr': <explanation>, 'result': <abstract concept>, 'suggestion': <next steps>}] (the 'suggestion' key is optional if not applicable).\\n\\n" +
+    "6. Complex Systems of Equations and Advanced Mathematical Problems:\\n" +
+    "   - This category includes systems with multiple variables, complex functions (trigonometric, logarithmic, exponential), and expressions requiring symbolic manipulation.\\n" +
+    "   - Solve the system or expression, including intermediate computation steps where necessary. For unique solutions, return each variable’s result as in category 2. For systems with multiple or infinite solutions, provide a parameterized solution or include an 'error' key with an explanation.\\n" +
+    "   - For advanced expressions, include a 'steps' key that lists intermediate computation steps.\\n" +
+    "   - Format the answer as a list of dictionaries, e.g., [{'expr': <original expression>, 'result': <calculated answer>, 'steps': [<step1>, <step2>, ...]}].\\n\\n" +
+    "7. Multi-Part or Ambiguous Problems:\\n" +
+    "   - If the image contains multiple distinct problems spanning different categories, separate each problem's response clearly.\\n" +
+    "   - For each distinct problem, include a key indicating the problem type and return the answer in the appropriate format as defined above.\\n" +
+    "   - If any problem is ambiguous or incomplete, return a dictionary with an 'error' key and a detailed message explaining the ambiguity.\\n\\n" +
+    "8. Event or Abstract Scenario Analysis with Next Steps:\\n" +
+    "   - If the image depicts a specific event or abstract scenario (e.g., an event description, social gathering, protest, or any scene conveying a situation), analyze and interpret the event.\\n" +
+    "   - Provide a clear explanation of the event or scenario, and include actionable suggestions or next steps.\\n" +
+    "   - Format your answer as a list containing a single dictionary with keys: 'expr' for your interpretation, 'result' for the summary or abstract concept, and 'suggestion' for your recommended next steps.\\n\\n" +
+    "RULES :\\n" +
+    "   - Use extra backslashes for escape characters (e.g., \\f becomes \\\\f and \\n becomes \\\\n).\\n" +
+    "   - Do NOT include any double quotes inside the string values. If the image content contains double quotes, either remove them or replace them with single quotes.\\n\\n" +
+    "   - DO NOT USE BACKTICKS OR MARKDOWN FORMATTING in your output.\\n" +
+    "   - Replace any variables in the expression with their actual values from the provided dictionary: ${dict_of_vars_str}.\\n" +
+    "   - Ensure all keys and values in your returned dictionaries are properly quoted to facilitate parsing with Python's ast.literal_eval.\\n\\n" +
+    'Analyze the image content thoroughly and return your answer following these rules, including detailed intermediate steps, robust error handling, and actionable suggestions or next steps when applicable."';
+    const {imageData} = req.body;
+    const contents = 
+    {
+    inlineData: {
+      mimeType: "image/jpeg",
+      data: imageData.split(',')[1]
+    }
+   }
+   
+   
+    try{
+        const response = await genAI.models.generateContent({
+            model: "gemini-2.0-flash",   //preview-image-generation
+             config: {
+              systemInstruction: prompt,
+            },
+            contents: contents,
+           
+        })
+        const result :string =(await response).text as string ;
+        console.log(result);
 
-//     const imagePart = {
-//       inlineData: {
-//         mimeType: "image/png",
-//         data: imageData.split(',')[1],
-//       },
-//     };
+        // Clean up the response by removing markdown formatting and normalizing quotes
+    const cleanedResponse = result
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .replace(/'/g, '"')
+      .replace(/\bTrue\b/g, "true")
+      .replace(/\bFalse\b/g, "false")
+      .replace(
+        /:\s*"([^"]*?)"(?=\s*[},])/g,
+        (match, p1) => `: "${p1.replace(/"/g, '\\"')}"`
+      ); // Escape quotes inside values
 
-//     const result = await model.generateContent([
-//       imagePart,
-//       { text: prompt }, // The explicit prompt to solve
-//       { text: "Provide the solution step-by-step and the final answer. Use LaTeX for mathematical expressions." } // System instruction reinforcement
-//     ]);
-//     const response = await result.response;
-//     const textOutput = response.text(); // Get the plain text response
+      let ans :Object=[];
+        try{
+           ans= JSON.parse(cleanedResponse);
+        }catch{
+          console.log(" cannot parse  ")
+        }
+        res.status(200).json({solveResult:ans})
+    }catch(error){
+        console.log(error);
 
-//     res.json({ solution: textOutput });
+        res.status(500).json({ error: " Error while solving" });
 
-//   } catch (error) {
-//     console.error('Error solving expression:', error);
-//     res.status(500).json({ error: 'Failed to solve expression with AI.' });
-//   }
-// })
+    }
+
+})
 
 app.listen(3001);
