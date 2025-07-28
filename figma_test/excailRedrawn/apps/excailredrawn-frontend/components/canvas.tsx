@@ -3,7 +3,7 @@
 import {useRef,useEffect,useState,useCallback} from "react"
 import { initDraw } from "@/draw";
 import { IconButton } from "./IconButton";
-import { Puzzle,WandSparkles, MousePointer,Circle, Hand,Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter,LogOut,MoveRight, Minus, Icon,ZoomIn,ZoomOut } from "lucide-react";
+import {X, Puzzle,WandSparkles, MousePointer,Circle, Hand,Pencil, RectangleHorizontalIcon, Type ,Eraser, Triangle, AlignCenter,LogOut,MoveRight, Minus, Icon,ZoomIn,ZoomOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Shape } from "@/draw";
 import axiosWithAuth from "./apiwithauth";
@@ -60,7 +60,8 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
    const [existingShapes, setExistingShapes] = useState<Shape[]>([]);
    const [selectedShapeIds, setSelectedShapeIds] = useState<Set<string>>(new Set());
    const [loadImprove,setLoadImprove] = useState(false);
-   
+   const [loadSolving,setLoadSolving]=useState(false);
+   const [airesponse,setAiresponse]=useState<string | null >(null);
 
 
   const updateExistingShapes = useCallback((newShapes: React.SetStateAction<Shape[]>) => {
@@ -181,9 +182,56 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
       setLoadImprove(false); // Runs whether success or failure
     }
   }
- 
+  async function handleSolve(){
+    try{console.log(airesponse);
+      setLoadSolving(true)
+    await solveExpression(
+      existingShapes,
+      selectedShapeIds,
+      roomId,
+      socket,
+      setAiresponse
+    );
+  }catch(e){
+    console.log("error solving ",e)
+    toast.error("failed to Solve ")
+  }finally{
+   setLoadSolving(false);
+  }
+  }
+   const formatAIResponse = (response: string) => {
+    try {
+      const parsed = JSON.parse(response);
+      return Object.entries(parsed)
+        .map(([key, value]) => {
+          // If the value is an object, stringify it with indentation.
+          const formattedValue =
+            typeof value === "object" && value !== null
+              ? JSON.stringify(value, null, 2)
+              : value;
+          return `${key}: ${formattedValue}`;
+        })
+        .join("\n");
+    } catch (error: any) {
+      return response;
+    }
+  };
     return (
         <div className=" relative w-screen h-screen bg-black  overflow-hidden">
+             {airesponse && (
+                  <div className="fixed right-0 bottom-0 z-50 bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full m-4">
+                    {/* Cross Button to Dismiss */}
+                    <button
+                       onClick={() => setAiresponse(null)}
+                       className="absolute top-2 right-2 text-gray-300 hover:text-white"
+                    >
+                      <X size={24} />
+                    </button>
+                    <pre className="text-white whitespace-pre-wrap">
+                      {formatAIResponse(airesponse)}
+                    </pre>
+                  </div>
+             )}
             {/* settings Box at left */}
             <div className="absolute z-10 left-4 top-24 space-y-6 p-6  bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-2xl ">
                 <div className="space-y-4  ">
@@ -235,6 +283,11 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
                     disabled={loadImprove}  onClick={handleImprove}
                    >
                   {loadImprove?"Improving...":"Improve"}
+                </button>
+                <button className="bg-slate-800/95 text-white p-1 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
+                    disabled={loadSolving}  onClick={handleSolve}
+                   >
+                  {loadSolving?"Solving...":"Solve"}
                 </button>
                 <button className="bg-slate-800/95 text-white p-1 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
                   onClick={delchats}
