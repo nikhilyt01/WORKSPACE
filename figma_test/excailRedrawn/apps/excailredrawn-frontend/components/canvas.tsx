@@ -10,6 +10,7 @@ import axiosWithAuth from "./apiwithauth";
 import { http_backend } from "@/config";
 import toast from "react-hot-toast";
 import { generateImageFromSelection } from "@/draw";
+import { solveExpression } from "@/draw";
 
 const api = axiosWithAuth()
 
@@ -59,12 +60,9 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
    const [existingShapes, setExistingShapes] = useState<Shape[]>([]);
    const [selectedShapeIds, setSelectedShapeIds] = useState<Set<string>>(new Set());
    const [loadImprove,setLoadImprove] = useState(false);
+   
 
 
-   useEffect(()=>{
-      console.log(existingShapes)
-   },[existingShapes])
-  // This function will be passed to initDraw
   const updateExistingShapes = useCallback((newShapes: React.SetStateAction<Shape[]>) => {
       setExistingShapes(newShapes);
     }, []);
@@ -183,6 +181,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
       setLoadImprove(false); // Runs whether success or failure
     }
   }
+ 
     return (
         <div className=" relative w-screen h-screen bg-black  overflow-hidden">
             {/* settings Box at left */}
@@ -231,7 +230,7 @@ export  function Canvas({roomId,socket}:{roomId:string,socket:WebSocket}){
 
             </div>
             {/* Logout */}
-            <div className="absolute z-10 top-4 right-4 flex gap-2 ">
+            <div className="absolute z-10 top-20 right-4 flex gap-2 md:top-4">
                 <button className="bg-slate-800/95 text-white p-1 rounded font-semibold text-sm hover:cursor-pointer hover:bg-slate-700/50"
                     disabled={loadImprove}  onClick={handleImprove}
                    >
