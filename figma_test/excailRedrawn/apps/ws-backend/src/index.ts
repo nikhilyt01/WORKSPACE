@@ -49,7 +49,7 @@ wss.on("connection",function connection(ws,request){
         return;
     }
 
-    // Remove any existing connection for this user
+    // // Remove any existing connection for this user
     const existingUserIndex = users.findIndex(u => u.userId === userId);//returna (index) if matched else (-1)  // check agar same user ka phele se array me details ha to old wale ko Splice krdo
     if (existingUserIndex !== -1) {    // found
         users.splice(existingUserIndex, 1);
@@ -109,10 +109,11 @@ wss.on("connection",function connection(ws,request){
                 return;
             }
             user.rooms = user.rooms.filter(room => ParsedData.roomId!=room)
-
+            
         }
         else if(ParsedData.type==="chat"){   // {type="chat",roomId:"123",message:"sjabd"}
-            const roomId =ParsedData.roomId
+            console.log("called")
+            const roomId = ParsedData.roomId;
             const message = ParsedData.message;
 
            const roomexists= await prismaClient.room.findUnique({
@@ -133,8 +134,8 @@ wss.on("connection",function connection(ws,request){
             }
            })
 
-           users.forEach(user =>{
-            if(user.rooms.includes(roomId) && user.ws!==ws) {  // so that my message is not broadcasted to me if i sent it
+           users.forEach(user =>{     
+            if(user.rooms.includes(roomId) ) {  // not && user.ws!==ws as for rendering image so that my message is not broadcasted to me if i sent it
                 user.ws.send(JSON.stringify({
                         type:"chat",
                         message:message,
@@ -148,9 +149,70 @@ wss.on("connection",function connection(ws,request){
                 message:"something went wrong while sending message"
             }))
         }
+        }else if(ParsedData.type==="image"){     // {type:image,roomId,message}
+            const roomId = ParsedData.roomId;
+            const message = ParsedData.message;
+
+            const roomExist = await prismaClient.room.findUnique({
+                where:{id:Number(roomId)}
+            })
+            if(!roomExist){
+                ws.send(JSON.stringify({
+                    type:"error",
+                    message:`Room with roomId ${roomId} do not exists`
+                }))
+                return;
+            }
+
+        try{
+           await prismaClient.chat.create({           // chat created
+            data:{
+                roomId:Number(roomId),
+                message,
+                userId
+            }
+           })
+
+           users.forEach(user =>{
+            if(user.rooms.includes(roomId) ) {  //&& user.ws!==ws so that my message is not broadcasted to me if i sent it
+                user.ws.send(JSON.stringify({
+                        type:"image",
+                        message:message,
+                        roomId
+                    }));
+            }
+           })
+        }catch{
+            ws.send(JSON.stringify({
+                type:"error",
+                message:"something went wrong while sending Image"
+            }))
+        }
+
+        }
+        else if(ParsedData.type==="solve"){
+            const roomId= ParsedData.roomId;
+            const message = ParsedData.message;
+            if(!roomId || ! message){
+                 ws.send(JSON.stringify({
+                    type:"error",
+                    message:`either RoomId or message missing in message`
+                }))
+                return;
+
+            }
+            users.forEach(user =>{
+                if(user.rooms.includes(roomId)){
+                    user.ws.send(JSON.stringify({
+                        type:"solve",
+                        message:message,
+                        roomId:roomId
+                    }))
+                }
+            })
         }
 
 
     })
 
-})
+})  
