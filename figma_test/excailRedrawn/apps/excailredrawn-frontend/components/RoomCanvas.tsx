@@ -37,7 +37,9 @@ export  function RoomCanvas({roomId}:{roomId:string}){
                     const ws= new WebSocket(`${WS_URL}?token=${token}`)
                     socketRef.current=ws;
 
+                    let connectionSuccessful = false;
                     ws.onopen=()=>{
+                         connectionSuccessful = true;
                          setConnectionStatus("connected")
                          ws.send(JSON.stringify({
                               type:"join_room",
@@ -46,12 +48,20 @@ export  function RoomCanvas({roomId}:{roomId:string}){
                          toast.success("connected to collabrative server")
                     }
                     ws.onerror=(error)=>{
+                     if (!connectionSuccessful) {
                          setConnectionStatus("error");
                          toast.error("ws connection error")
                          console.log("conection error:",error)
+                      }
                     }
                     ws.onclose=()=>{
-                         toast.error("Disconnected from server")
+                          
+                          // Only show disconnect toast if previously connected
+                          if (connectionStatus === "connected") {
+                            toast.error("Disconnected from server");
+                          }
+                          console.log("Disconnected", event);
+                          if (!connectionSuccessful) return; // Skip if already handled by onerror
                     }
                
 
