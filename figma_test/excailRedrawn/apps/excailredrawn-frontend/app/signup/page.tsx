@@ -41,33 +41,76 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-zinc-900 text-white">
-      <form onSubmit={handleSignup} className="bg-zinc-700 p-8 rounded-lg w-full max-w-md space-y-4">
-        <h2 className="text-2xl font-bold text-center">Sign Up</h2>
-        <input type="text" ref={nameRef} placeholder="Name" required className="w-full p-2 rounded bg-zinc-600" />
-        <input type="email" ref={usernameRef} placeholder="Email" required minLength={6} maxLength={23} className="w-full p-2 rounded bg-zinc-600" />
-      <div className="relative">
-        <input type={showpass?"text":"password"} ref={passwordRef} placeholder="Password" required minLength={3} maxLength={10} className="w-full p-2 rounded bg-zinc-600" />
-          <button
-           type="button"
-           onClick={()=>setShowpass(!showpass)}            //transform -translate-y-1/2  so that shape comes upside i.e centered
-           className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-           aria-label={showpass ? "Hide password" : "Show password"}
-           >
-               {showpass ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-zinc-900 to-slate-800  ">
+      <form onSubmit={handleSignup} className="bg-gradient-to-br from-zinc-800 to-zinc-900 p-8 rounded-2xl w-full max-w-sm space-y-6 shadow-2xl border border-zinc-700/50 backdrop-blur-sm">
+        <h2 className="text-3xl font-bold text-center bg-gradient-to-br from-blue-400 to-purple-600 bg-clip-text text-transparent mb-8">Sign Up</h2>
+                         {/* bg-gradient-to-br from-color to-color but it gives bg-color so we have to place it on text so use bg-clip-text to cut bg & text-transparent to remove text original colour and show only bg that we set */}
         
-        <button disabled={loading} type="submit" className="w-full bg-blue-600 py-2 rounded hover:bg-blue-700 transition">
-          {loading ? "Signing Up..." : "Sign Up"}
+        <input 
+          type="text" 
+          ref={nameRef} 
+          placeholder="Name" 
+          minLength={5} 
+          maxLength={23} 
+          required 
+          className="w-full p-4 rounded-xl bg-zinc-700/50 border border-zinc-600/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder-zinc-400 text-white outline-none" 
+        />
+        <input 
+          type="email" 
+          ref={usernameRef} 
+          placeholder="Email" 
+          minLength={6} 
+          maxLength={23} 
+          required 
+          className="w-full p-4 rounded-xl bg-zinc-700/50 border border-zinc-600/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder-zinc-400 text-white outline-none" 
+        />
+        
+        <div className="relative">
+          <input 
+            type={showpass ? "text" : "password"} 
+            ref={passwordRef} 
+            placeholder="Password" 
+            required 
+            minLength={3} 
+            maxLength={10} 
+            className="w-full p-4 pr-12 rounded-xl bg-zinc-700/50 border border-zinc-600/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder-zinc-400 text-white outline-none" 
+          />
+          <button
+            type="button"
+            onClick={() => setShowpass(!showpass)}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors duration-200"
+            aria-label={showpass ? "Hide password" : "Show password"}
+          >
+            {showpass ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
+        
+        <button 
+          disabled={loading} 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center space-x-2">
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Signing In...</span>
+            </span>
+          ) : (
+            "Sign In"
+          )}
         </button>
-        <p className="text-sm text-center">
-          Already have an account?{" "}
-          <span onClick={() => router.push("/signin")} className="text-blue-400 cursor-pointer hover:underline">
+        
+        <p className="text-sm text-center text-zinc-400 pt-4 border-t border-zinc-700/50">
+          Don't have an account?{" "}
+          <span 
+            onClick={() => router.push("/signin")} 
+            className="text-blue-400 cursor-pointer hover:text-blue-300 hover:underline transition-colors duration-200 font-medium"
+          >
             Sign In
           </span>
         </p>
       </form>
     </div>
+    
   );
 }
