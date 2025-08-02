@@ -112,7 +112,7 @@ wss.on("connection",function connection(ws,request){
             
         }
         else if(ParsedData.type==="chat"){   // {type="chat",roomId:"123",message:"sjabd"}
-            console.log("called")
+            //console.log("called")
             const roomId = ParsedData.roomId;
             const message = ParsedData.message;
 
@@ -174,7 +174,7 @@ wss.on("connection",function connection(ws,request){
            })
 
            users.forEach(user =>{
-            if(user.rooms.includes(roomId) ) {  //&& user.ws!==ws so that my message is not broadcasted to me if i sent it
+            if(user.rooms.includes(roomId)  ) {  //&& user.ws!==ws so that my message is not broadcasted to me if i sent it
                 user.ws.send(JSON.stringify({
                         type:"image",
                         message:message,
@@ -202,7 +202,7 @@ wss.on("connection",function connection(ws,request){
 
             }
             users.forEach(user =>{
-                if(user.rooms.includes(roomId)){
+                if(user.rooms.includes(roomId)&& user.ws!==ws){
                     user.ws.send(JSON.stringify({
                         type:"solve",
                         message:message,
