@@ -186,7 +186,8 @@ export async function initDraw(
     initialOffsetX: number,  // ✅ Rename for clarity offset moved to global canvas.tsx (parent)
     initialOffsetY: number,  // 
     seelectedShapeIds: Set<string>,
-    setSelectedShapeIds: React.Dispatch<React.SetStateAction<Set<string>>>
+    setSelectedShapeIds: React.Dispatch<React.SetStateAction<Set<string>>>,
+    setAiresponse:(response:string | null)=>void,
 ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -222,10 +223,10 @@ export async function initDraw(
         clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
 
         socket.onmessage = async (event) => {
-            try { console.log("some messahe is broadcased")
+            try { //console.log("some messahe is broadcased")
                 const message = JSON.parse(event.data); // {type:"jR"|"chat",message:{"shape":{..}} , roomId}
                 if (message.type === "error") {
-                    console.log("error from ws")
+                    //console.log("error from ws")
                     toast.error(message.message, {
                         duration: 4000,
                         position: "top-center"
@@ -233,7 +234,7 @@ export async function initDraw(
                     return;
                 }
                 if (message.type === "chat") {
-                    console.log("chat received")
+                   // console.log("chat received")
                     const parsedShapeData = JSON.parse(message.message);
                     const newShape: Shape = {
                         ...parsedShapeData.shape,
@@ -269,6 +270,10 @@ export async function initDraw(
                     setExistingShapes(preShape=> [...preShape,newShape])  // passes to parent canvas.tsx
                     clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds);
                     toast.success("New AI image received!");
+                }
+                else if(message.type==="solve"){
+                    const msg = message.message
+                    setAiresponse(JSON.stringify(msg));
                 }
                 // --- END NEW IMAGE HANDLING ---
 
@@ -559,15 +564,19 @@ export async function initDraw(
         }
         // --- End Drawing Tool Shape Creation ---
 
-        existingShapes.push(shape);
-        setExistingShapes(preShape=> [...preShape,shape])  // passes to parent canvas.tsx
+         // passes to parent canvas.tsx
         if (shape) {
+            existingShapes.push(shape);
+            setExistingShapes(preShape=> [...preShape,shape]) 
+            console.log("shape sent")
             socket.send(JSON.stringify({
                 type: "chat",
                 message: JSON.stringify({ shape }), // Send the shape with its ID
                 roomId
             }));
+            
         }
+
         clearCanvas(existingShapes, canvas, ctx, offsetX, offsetY, zoom, selectedShapeIds); // Re-render after drawing
     });
 
@@ -927,7 +936,7 @@ export async function generateImageFromSelection(
     socket: WebSocket,
 ) {
     if (selectedShapeIds.size === 0) {
-        toast.error("No shapes selected to generate an image.");
+        toast.error("Please Select to generate an image.");
         return;
     }
 
@@ -985,9 +994,9 @@ export async function generateImageFromSelection(
            "5. Reconstruct perspective and proportions to follow real-world physics " +
            "6. Add contextually appropriate details (e.g., turn rectangle wheels into proper tires with rims) " +
            "Important: " +
+           "- The Background should be Black colour only borders also"+
            "-consider generating image with same geometry and orientaion"+
            "- Prioritize realism over artistic styles and " +
-           "- The Background should be same as provided img i.e Black"
            "- Never return cartoonish/abstract results " +
            "- If the sketch resembles multiple real objects, choose the most probable one " +
            "- For human figures, maintain realistic proportions and anatomy";
@@ -1008,7 +1017,7 @@ export async function generateImageFromSelection(
                 type: "image",
                 id: uuidv4(),
                 x: minX, // Place the new image at the top-left of the original selection
-                y: maxY , // Place it below the original selection
+                y: maxY + PADDING * 2 , // Place it below the original selection
                 width: canvasWidth, // Use the same width as the captured image
                 height: canvasHeight, // Use the same height as the captured image
                 imageUrl: response.data.improvedImage,
@@ -1060,7 +1069,7 @@ export async function solveExpression(
 
 ) {
     if(selectedShapeIds.size===0){
-        toast.error("No selecetion")
+        toast.error("Please Select to Solve")
     }
     const selectedShapes = existingShapes.filter(shape => selectedShapeIds.has(shape.id));
 
@@ -1111,7 +1120,7 @@ export async function solveExpression(
         if(response.data.solveResult){
             socket.send(JSON.stringify({
                 type:"solve",
-                message:response.data.solveResult,
+                message:response.data.solveResult[0],
                 roomId
             }))
             setAiresponse(JSON.stringify(response.data.solveResult[0]))
