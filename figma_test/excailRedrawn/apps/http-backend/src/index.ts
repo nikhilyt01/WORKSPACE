@@ -177,7 +177,7 @@ app.get("/chat/:roomId",async(req,res)=>{
             orderBy:{
                 id:"desc"
             },
-            take:100
+            take:400
         })
         res.json({message})
     }catch{
