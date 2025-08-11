@@ -5,6 +5,9 @@ import './App.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { decrement, increment, incrementByAmount, reset } from './features/counter/counterSlice'
 
+import AddTodo from './component/addTodo'
+import { Todos } from './component/todos'
+
 function App() {
   const [amount,setAmount]=useState(0)
   const count = useSelector((state)=> state.counter.value)  // this will extract new value
@@ -46,6 +49,11 @@ function App() {
         
         
        </div>
+      
+      <div>
+         <AddTodo/>
+         <Todos/>
+      </div>
     </div>
   )
 }
