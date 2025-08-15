@@ -51,7 +51,7 @@ function App() {
         
        </div>
       
-      <div className=''>
+      <div className='border-1 border-slate-600 shadow-lg bg-slate-800  p-6 rounded-xl'>
          <AddTodo/>
          <Todos/>
       </div>
