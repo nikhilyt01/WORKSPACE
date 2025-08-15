@@ -28,19 +28,20 @@ function App() {
   }
 
   return (
-    <div className="h-screen bg-linear-to-br from-purple-800 to-slate-900 w-screen flex justify-center items-center gap-4">
-      <div className='border-1 border-white bg-slate-800  p-6 rounded text-center'>
+    <div className="min-h-screen bg-linear-to-br from-purple-800 to-slate-900 w-screen  flex flex-col justify-start items-center p-8">
+      <div className='flex flex-col gap-4 '>
+      <div className='border-1  border-white bg-slate-800  p-6 rounded text-center'>
         <button className='bg-blue-500 px-4 py-2 rounded-xl text-white  my-2' onClick={handleIncrementClick} > + </button>
         <h1 className="text-white text-3xl font-semibold">count:{count} </h1>
         <button className='bg-blue-500 px-4 py-2 rounded-xl text-white  mb-2' onClick={handleDecrementClick}> - </button>
         <button className='bg-blue-500 px-4 py-2 rounded-xl text-white ml-2  my-2' onClick={handleResetClick}> Reset</button>
-        <div className='py-4'>
+        <div className='py-4 '>
           <input
            type='number'
            value={amount}
            placeholder='Enter amount'
            onChange={(e)=> setAmount(e.target.value)}
-           className='bg-slate-700/95 block p-2 h-8 rounded-lg'
+           className='bg-slate-700/95  p-2 h-8 rounded-lg'
           />
           <div className='text-center'>
            <button className='bg-red-500 px-4 py-1 rounded-xl text-white ml-2  my-2' onClick={handleIncByAmount}> Increment </button>
@@ -50,10 +51,12 @@ function App() {
         
        </div>
       
-      <div>
+      <div className=''>
          <AddTodo/>
          <Todos/>
       </div>
+      </div>
+      
     </div>
   )
 }
