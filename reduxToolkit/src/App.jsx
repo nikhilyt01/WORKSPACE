@@ -28,9 +28,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-purple-800 to-slate-900 w-screen  flex flex-col justify-start items-center p-8">
+    <div className="min-h-screen bg-linear-to-br from-purple-800 to-slate-900 w-screen  flex flex-col  items-center p-8">
       <div className='flex flex-col gap-4 '>
-      <div className='border-1  border-white bg-slate-800  p-6 rounded text-center'>
+       <div className='border-1  border-white bg-slate-800  p-6 rounded text-center'>
         <button className='bg-blue-500 px-4 py-2 rounded-xl text-white  my-2' onClick={handleIncrementClick} > + </button>
         <h1 className="text-white text-3xl font-semibold">count:{count} </h1>
         <button className='bg-blue-500 px-4 py-2 rounded-xl text-white  mb-2' onClick={handleDecrementClick}> - </button>
@@ -51,10 +51,10 @@ function App() {
         
        </div>
       
-      <div className='border-1 border-slate-600 shadow-lg bg-slate-800  p-6 rounded-xl'>
+       <div className='border-1 border-slate-600 shadow-lg bg-slate-800  p-6 rounded-xl'>
          <AddTodo/>
          <Todos/>
-      </div>
+       </div>
       </div>
       
     </div>
