@@ -52,7 +52,7 @@ export function Todos (){
                   :  todo.text  }
                 </div>
                 <div className="space-x-2">
-                { editId===todo.id ? <button className="text-white bg-blue-500 border-0 py-1 px-4 focus:outline-none hover:bg-cyan-600 rounded text-md"
+                { editId===todo.id ? <button className="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 rounded text-md"
                               onClick={handleSave}
                             >
                                 <Save className="w-5 h-5"/>
