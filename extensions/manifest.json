@@ -1,0 +1,17 @@
+{
+    "manifest_version": 3,
+    "name": "Color Picker",
+    "version": "1.0",
+    "description": "A simple color picker extension for Chrome.",
+    "permissions": ["activeTab", "storage"],
+    "action": {
+      "default_popup": "index.html",
+      "default_icon": {
+        "16": "logo.png"
+      }
+    },
+    "icons": {
+      "128": "logo.png"
+    }
+  }
+  
