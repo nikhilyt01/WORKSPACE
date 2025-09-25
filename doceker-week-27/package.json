@@ -1,0 +1,22 @@
+{
+  "name": "doceker-week-27",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start":"node dist/index.js",
+    "dev":"npm run build && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0",
+    "prisma": "^6.16.2",
+    "typescript": "^5.9.2"
+  }
+}
