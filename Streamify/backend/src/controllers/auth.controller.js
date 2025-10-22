@@ -23,7 +23,7 @@ export async function signup(req,res){
 
         const idx=Math.floor(Math.random()*100)+1;
         const randomAvatar=`https://avatar.iran.liara.run/public/${idx}.png`;
-
+        // To do : add same user to stream  as well
         const newUser= await User.create({
             email,
             fullName,
@@ -54,11 +54,11 @@ export async function  login(req,res){
             return res.status(400).json({messsage:"all fields are required"});
         }
         const existinguser=await User.findOne({email})
-        if(!existinguser) return res.status(400).json({message:"Invalid credentials"});
+        if(!existinguser) return res.status(400).json({message:"Invalid credentials -email"});
 
-        const isPasswordmatch= await User.matchPassword(password);
+        const isPasswordmatch= await existinguser.matchPassword(password);
         if(!isPasswordmatch) return res.status(400).josn({message:"Invalid credentials"});
-
+ 
         const token= jwt.sign({userId:existinguser._id},process.env.JWT_SECRET_KEY,{expiresIn:'7d'})
 
         res.cookie("jwt",token,{
