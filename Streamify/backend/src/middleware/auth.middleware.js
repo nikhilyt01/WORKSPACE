@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import User from "../models/User.js";
 
-const protectRoute= async (req,res,next)=>{
+export const protectRoute= async (req,res,next)=>{
     const token=req.cookies.jwt;
     if(!token){
         return res.status(401).json({message:"Unauthorized access -token missing"});
@@ -17,7 +17,7 @@ const protectRoute= async (req,res,next)=>{
             return res.status(401).json({message:"Unauthorized access -user not found"});
         }
 
-        req.userId=decoded.userId;//decoded  
+        req.userId=user;//decoded  
         next();
     }catch(error){
         console.log("Error in auth middleware:",error.message);
