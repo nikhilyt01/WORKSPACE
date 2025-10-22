@@ -114,7 +114,7 @@ export async function onboard(req,res){
             ].filter(Boolean) 
         });
     }
-
+    // ---------updating user info in Db ----------
     const updatedUser = await User.findByIdAndUpdate(userId,{
         ...req.body,
         isOnboarded:true
@@ -122,8 +122,8 @@ export async function onboard(req,res){
     if(!updatedUser){
         return res.status(500).json({message:"Error in onboarding user"});
     }
- // to do :update stream user as well
-    try{
+
+    try{  // ------ updating stream user ------
         await upsertStreamUser({
             id:updatedUser._id.toString(),
             name:updatedUser.fullName,
@@ -135,9 +135,10 @@ export async function onboard(req,res){
     }
 
     return res.status(200).json({success:true,message:"User onboarded successfully",user:updatedUser});
- }catch(error){
+  }catch(error){
 
     console.log("Error in onboarding controller:",error.message);
-}
+    res.status(500).json({message:"Internal server error"});
+ }
 }
 
