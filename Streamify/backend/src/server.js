@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";// bcoz used type : "module" in package.json for import 
 import cookieParser from "cookie-parser";
 import { connectDB } from "./Lib/db.js";
+import userRoutes from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth",authRoutes);
+app.use("api/users",userRoutes);
 
 app.get("/",(req,res)=>{
     res.send("Welcome to Streamify");
