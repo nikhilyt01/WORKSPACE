@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./Lib/db.js";
 import userRoutes from "./routes/user.route.js";
 import chatRoutes from "./routes/chat.routes.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -13,6 +14,11 @@ const PORT=process.env.PORT ;
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+    origin:["http://localhost:5173"
+    ],
+    Credentials:true, // allow fe to send cookies
+}))
 
 app.use("/api/auth",authRoutes);
 app.use("api/users",userRoutes);
