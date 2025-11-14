@@ -31,6 +31,8 @@ export async function signup(req,res){
             password,//:hashedpass
             profilePic:randomAvatar
         })
+        const user = newUser.toObject();
+        delete user.password; // Remove password field before sending response
      
 
 
@@ -54,7 +56,7 @@ export async function signup(req,res){
             sameSite:'strict',
             maxAge:7*24*60*60*1000
         })
-        return res.status(201).json({success:true, message:"User registered successfully", user:newUser});
+        return res.status(201).json({success:true, message:"User registered successfully", user:user});
 
     }  
     catch(error){
@@ -72,9 +74,12 @@ export async function  login(req,res){
         }
         const existinguser=await User.findOne({email})
         if(!existinguser) return res.status(400).json({message:"Please Signup first"});
-
-        const isPasswordmatch= await existinguser.matchPassword(password);
-        if(!isPasswordmatch) return res.status(400).josn({message:"Invalid credentials"});
+        const user=existinguser.toObject();
+        delete user.password; // Remove password field before sending response
+  
+        //const isPasswordmatch= await existinguser.matchPassword(password);
+        const passismatch=await bcrypt.compare(password,existinguser.password);
+        if(!passismatch) return res.status(400).josn({message:"Invalid credentials"});
  
         const token= jwt.sign({userId:existinguser._id},process.env.JWT_SECRET_KEY,{expiresIn:'7d'})
 
@@ -84,7 +89,7 @@ export async function  login(req,res){
             secure:process.env.NODE_ENV ==='production',
             sameSite:'strict',
         })
-        return res.status(200).json({success:true,message:"Login successful",user:existinguser});
+        return res.status(200).json({success:true,message:"Login successful",user:user});
 
     }
     catch(error){
