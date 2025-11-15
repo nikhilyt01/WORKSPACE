@@ -74,6 +74,7 @@ export async function  login(req,res){
         }
         const existinguser=await User.findOne({email})
         if(!existinguser) return res.status(400).json({message:"Please Signup first"});
+        //Hiding password feild from response
         const user=existinguser.toObject();
         delete user.password; // Remove password field before sending response
   
