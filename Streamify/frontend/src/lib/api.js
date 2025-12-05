@@ -1,7 +1,18 @@
 import axiosInsrtance from "./axios"
 
- const signup= async(signupData)=>{
+export const signup= async(signupData)=>{
     const response = await axiosInsrtance.post("/auth/signup",signupData);
     return response.data;
 }
-export default signup;
+
+export const getAuthUser = async () => {
+  try {
+    const res = await axiosInsrtance.get("/auth/me");
+    return res.data;
+  } catch (error) {
+    console.log("Error in getAuthUser:", error);
+    return null;
+  }
+};
+
+
