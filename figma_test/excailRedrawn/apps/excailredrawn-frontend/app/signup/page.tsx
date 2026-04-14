@@ -96,7 +96,7 @@ export default function Signup() {
               <span>Signing In...</span>
             </span>
           ) : (
-            "Sign In"
+            "Sign up"
           )}
         </button>
         
