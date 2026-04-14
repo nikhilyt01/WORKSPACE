@@ -93,7 +93,7 @@ export default function Signup() {
           {loading ? (
             <span className="flex items-center justify-center space-x-2">
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              <span>Signing In...</span>
+              <span>Signing up...</span>
             </span>
           ) : (
             "Sign up"
